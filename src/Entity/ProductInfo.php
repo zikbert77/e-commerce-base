@@ -37,6 +37,12 @@ class ProductInfo implements TimestampableInterface
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[ORM\Column(length: 60, nullable: true)]
+    private ?string $seo_title = null;
+
+    #[ORM\Column(length: 160, nullable: true)]
+    private ?string $seo_description = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -110,6 +116,30 @@ class ProductInfo implements TimestampableInterface
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seo_title;
+    }
+
+    public function setSeoTitle(?string $seo_title): static
+    {
+        $this->seo_title = $seo_title;
+
+        return $this;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->seo_description;
+    }
+
+    public function setSeoDescription(?string $seo_description): static
+    {
+        $this->seo_description = $seo_description;
 
         return $this;
     }
