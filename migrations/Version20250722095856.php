@@ -11,7 +11,7 @@ final class Version20250722095856 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create base tables (messenger, category)';
     }
 
     public function up(Schema $schema): void

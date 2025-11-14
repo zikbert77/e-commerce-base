@@ -11,7 +11,7 @@ final class Version20250722102213 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create user table';
     }
 
     public function up(Schema $schema): void
@@ -24,7 +24,6 @@ final class Version20250722102213 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP TABLE "user"');
     }
 }

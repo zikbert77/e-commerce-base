@@ -4,12 +4,12 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
-use App\Repository\CategoryTranslationRepository;
+use App\Repository\ProductInfoRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CategoryTranslationRepository::class)]
-class CategoryTranslation implements TimestampableInterface
+#[ORM\Entity(repositoryClass: ProductInfoRepository::class)]
+class ProductInfo implements TimestampableInterface
 {
     use TimestampableTrait;
 
@@ -18,15 +18,15 @@ class CategoryTranslation implements TimestampableInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'categoryTranslations')]
+    #[ORM\ManyToOne(inversedBy: 'productInfos')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Category $category = null;
-
-    #[ORM\Column(length: 6)]
-    private ?string $locale = null;
+    private ?Product $product = null;
 
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
+
+    #[ORM\Column(length: 6)]
+    private ?string $locale = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -34,7 +34,7 @@ class CategoryTranslation implements TimestampableInterface
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $short_description = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
     public function getId(): ?int
@@ -42,14 +42,14 @@ class CategoryTranslation implements TimestampableInterface
         return $this->id;
     }
 
-    public function getCategory(): ?Category
+    public function getProduct(): ?Product
     {
-        return $this->category;
+        return $this->product;
     }
 
-    public function setCategory(?Category $category): static
+    public function setProduct(?Product $product): static
     {
-        $this->category = $category;
+        $this->product = $product;
 
         return $this;
     }
@@ -95,7 +95,7 @@ class CategoryTranslation implements TimestampableInterface
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription(string $description): static
     {
         $this->description = $description;
 

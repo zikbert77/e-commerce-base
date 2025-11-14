@@ -28,14 +28,14 @@ class Product implements TimestampableInterface
     private ?int $status = null;
 
     /**
-     * @var Collection<int, ProductTranslation>
+     * @var Collection<int, ProductInfo>
      */
-    #[ORM\OneToMany(targetEntity: ProductTranslation::class, mappedBy: 'product', orphanRemoval: true)]
-    private Collection $productTranslations;
+    #[ORM\OneToMany(targetEntity: ProductInfo::class, mappedBy: 'product', orphanRemoval: true)]
+    private Collection $productInfos;
 
     public function __construct()
     {
-        $this->productTranslations = new ArrayCollection();
+        $this->productInfos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -68,29 +68,29 @@ class Product implements TimestampableInterface
     }
 
     /**
-     * @return Collection<int, ProductTranslation>
+     * @return Collection<int, ProductInfo>
      */
-    public function getProductTranslations(): Collection
+    public function getProductInfos(): Collection
     {
-        return $this->productTranslations;
+        return $this->productInfos;
     }
 
-    public function addProductTranslation(ProductTranslation $productTranslation): static
+    public function addProductInfo(ProductInfo $productInfo): static
     {
-        if (!$this->productTranslations->contains($productTranslation)) {
-            $this->productTranslations->add($productTranslation);
-            $productTranslation->setProduct($this);
+        if (!$this->productInfos->contains($productInfo)) {
+            $this->productInfos->add($productInfo);
+            $productInfo->setProduct($this);
         }
 
         return $this;
     }
 
-    public function removeProductTranslation(ProductTranslation $productTranslation): static
+    public function removeProductInfo(ProductInfo $productInfo): static
     {
-        if ($this->productTranslations->removeElement($productTranslation)) {
+        if ($this->productInfos->removeElement($productInfo)) {
             // set the owning side to null (unless already changed)
-            if ($productTranslation->getProduct() === $this) {
-                $productTranslation->setProduct(null);
+            if ($productInfo->getProduct() === $this) {
+                $productInfo->setProduct(null);
             }
         }
 

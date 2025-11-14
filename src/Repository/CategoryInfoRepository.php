@@ -2,17 +2,17 @@
 
 namespace App\Repository;
 
-use App\Entity\CategoryTranslation;
+use App\Entity\CategoryInfo;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<CategoryTranslation>
+ * @extends ServiceEntityRepository<CategoryInfo>
  */
-class CategoryTranslationRepository extends ServiceEntityRepository
+class CategoryInfoRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CategoryTranslation::class);
+        parent::__construct($registry, CategoryInfo::class);
     }
 }

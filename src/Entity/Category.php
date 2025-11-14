@@ -33,15 +33,15 @@ class Category implements TimestampableInterface
     private ?int $status = null;
 
     /**
-     * @var Collection<int, CategoryTranslation>
+     * @var Collection<int, CategoryInfo>
      */
-    #[ORM\OneToMany(targetEntity: CategoryTranslation::class, mappedBy: 'category', orphanRemoval: true)]
-    private Collection $categoryTranslations;
+    #[ORM\OneToMany(targetEntity: CategoryInfo::class, mappedBy: 'category', orphanRemoval: true)]
+    private Collection $categoryInfos;
 
     public function __construct()
     {
         $this->childCategories = new ArrayCollection();
-        $this->categoryTranslations = new ArrayCollection();
+        $this->categoryInfos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,29 +104,29 @@ class Category implements TimestampableInterface
     }
 
     /**
-     * @return Collection<int, CategoryTranslation>
+     * @return Collection<int, CategoryInfo>
      */
-    public function getCategoryTranslations(): Collection
+    public function getCategoryInfos(): Collection
     {
-        return $this->categoryTranslations;
+        return $this->categoryInfos;
     }
 
-    public function addCategoryTranslation(CategoryTranslation $categoryTranslation): static
+    public function addCategoryInfo(CategoryInfo $categoryInfo): static
     {
-        if (!$this->categoryTranslations->contains($categoryTranslation)) {
-            $this->categoryTranslations->add($categoryTranslation);
-            $categoryTranslation->setCategory($this);
+        if (!$this->categoryInfos->contains($categoryInfo)) {
+            $this->categoryInfos->add($categoryInfo);
+            $categoryInfo->setCategory($this);
         }
 
         return $this;
     }
 
-    public function removeCategoryTranslation(CategoryTranslation $categoryTranslation): static
+    public function removeCategoryInfo(CategoryInfo $categoryInfo): static
     {
-        if ($this->categoryTranslations->removeElement($categoryTranslation)) {
+        if ($this->categoryInfos->removeElement($categoryInfo)) {
             // set the owning side to null (unless already changed)
-            if ($categoryTranslation->getCategory() === $this) {
-                $categoryTranslation->setCategory(null);
+            if ($categoryInfo->getCategory() === $this) {
+                $categoryInfo->setCategory(null);
             }
         }
 
