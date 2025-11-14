@@ -6,8 +6,10 @@ use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
 use App\Repository\CartItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
+#[ORM\UniqueConstraint(name: 'uniq_cart_product', columns: ['cart_id', 'product_id'])]
 class CartItem implements TimestampableInterface
 {
     use TimestampableTrait;
@@ -26,6 +28,8 @@ class CartItem implements TimestampableInterface
     private ?Product $product = null;
 
     #[ORM\Column]
+    #[Assert\Positive]
+    #[Assert\LessThanOrEqual(9999)]
     private ?int $qty = null;
 
     public function getId(): ?int
