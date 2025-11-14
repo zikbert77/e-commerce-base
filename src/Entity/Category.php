@@ -38,6 +38,9 @@ class Category implements TimestampableInterface
     #[ORM\OneToMany(targetEntity: CategoryInfo::class, mappedBy: 'category', orphanRemoval: true)]
     private Collection $categoryInfos;
 
+    #[ORM\ManyToOne]
+    private ?User $creator = null;
+
     public function __construct()
     {
         $this->childCategories = new ArrayCollection();
@@ -129,6 +132,18 @@ class Category implements TimestampableInterface
                 $categoryInfo->setCategory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): static
+    {
+        $this->creator = $creator;
 
         return $this;
     }

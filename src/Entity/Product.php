@@ -33,6 +33,9 @@ class Product implements TimestampableInterface
     #[ORM\OneToMany(targetEntity: ProductInfo::class, mappedBy: 'product', orphanRemoval: true)]
     private Collection $productInfos;
 
+    #[ORM\ManyToOne]
+    private ?User $creator = null;
+
     public function __construct()
     {
         $this->productInfos = new ArrayCollection();
@@ -93,6 +96,18 @@ class Product implements TimestampableInterface
                 $productInfo->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): static
+    {
+        $this->creator = $creator;
 
         return $this;
     }
