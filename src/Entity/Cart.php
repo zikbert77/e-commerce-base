@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
+use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
 use App\Entity\Enum\CartStatus;
 use App\Repository\CartRepository;
 use DateTimeImmutable;
@@ -14,8 +16,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_user_active_cart', columns: ['user_id', 'status'], options: ['where' => '(status = 1)'])]
 #[ORM\UniqueConstraint(name: 'uniq_user_active_cart', columns: ['user_id', 'status'], options: ['where' => '(status = 1)'])]
 #[ORM\HasLifecycleCallbacks]
-class Cart
+class Cart implements TimestampableInterface
 {
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
