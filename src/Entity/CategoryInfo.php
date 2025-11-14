@@ -37,6 +37,12 @@ class CategoryInfo implements TimestampableInterface
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(length: 60, nullable: true)]
+    private ?string $seoTitle = null;
+
+    #[ORM\Column(length: 160, nullable: true)]
+    private ?string $seoDescription = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -110,6 +116,30 @@ class CategoryInfo implements TimestampableInterface
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    public function setSeoTitle(?string $seoTitle): static
+    {
+        $this->seoTitle = $seoTitle;
+
+        return $this;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    public function setSeoDescription(?string $seoDescription): static
+    {
+        $this->seoDescription = $seoDescription;
 
         return $this;
     }
