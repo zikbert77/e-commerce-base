@@ -38,10 +38,10 @@ class ProductInfo implements TimestampableInterface
     private ?string $description = null;
 
     #[ORM\Column(length: 60, nullable: true)]
-    private ?string $seo_title = null;
+    private ?string $seoTitle = null;
 
     #[ORM\Column(length: 160, nullable: true)]
-    private ?string $seo_description = null;
+    private ?string $seoDescription = null;
 
     public function getId(): ?int
     {
@@ -122,24 +122,24 @@ class ProductInfo implements TimestampableInterface
 
     public function getSeoTitle(): ?string
     {
-        return $this->seo_title;
+        return $this->seoTitle;
     }
 
-    public function setSeoTitle(?string $seo_title): static
+    public function setSeoTitle(?string $seoTitle): static
     {
-        $this->seo_title = $seo_title;
+        $this->seoTitle = $seoTitle;
 
         return $this;
     }
 
     public function getSeoDescription(): ?string
     {
-        return $this->seo_description;
+        return $this->seoDescription;
     }
 
-    public function setSeoDescription(?string $seo_description): static
+    public function setSeoDescription(?string $seoDescription): static
     {
-        $this->seo_description = $seo_description;
+        $this->seoDescription = $seoDescription;
 
         return $this;
     }
