@@ -7,12 +7,14 @@ use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, TimestampableInterface
 {
     use TimestampableTrait;
@@ -51,6 +53,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Timesta
 
     #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
     private ?int $status = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private ?bool $is_verified = null;
+
 
     public function getId(): ?int
     {
@@ -189,6 +195,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Timesta
     public function setStatus(int $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->is_verified;
+    }
+
+    public function setIsVerified(bool $is_verified): static
+    {
+        $this->is_verified = $is_verified;
 
         return $this;
     }
