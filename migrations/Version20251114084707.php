@@ -25,7 +25,6 @@ final class Version20251114084707 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE cart DROP CONSTRAINT FK_BA388B7A76ED395');
         $this->addSql('DROP TABLE cart');
     }
