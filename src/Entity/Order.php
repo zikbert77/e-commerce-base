@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use DateTimeImmutable;
@@ -22,7 +23,7 @@ class Order implements TimestampableInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
+    #[ORM\Column(length: 30, unique: true)]
     private ?string $uid = null;
 
     #[ORM\ManyToOne]
@@ -31,21 +32,33 @@ class Order implements TimestampableInterface
     #[ORM\Column(enumType: OrderStatus::class)]
     private ?OrderStatus $status = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     private ?int $subtotalAmount = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     private ?int $discountAmount = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     private ?int $shippingCostAmount = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     private ?int $taxAmount = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     private ?int $totalAmount = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     private ?int $paidAmount = null;
 
@@ -55,6 +68,7 @@ class Order implements TimestampableInterface
     #[ORM\Column(length: 120, nullable: true)]
     private ?string $customerLastName = null;
 
+    #[Assert\Email]
     #[ORM\Column(length: 120, nullable: true)]
     private ?string $customerEmail = null;
 
@@ -157,7 +171,7 @@ class Order implements TimestampableInterface
         return $this->shippingCostAmount;
     }
 
-    public function setShippingCost(int $shippingCostAmount): static
+    public function setShippingCostAmount(int $shippingCostAmount): static
     {
         $this->shippingCostAmount = $shippingCostAmount;
 
