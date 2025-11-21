@@ -183,7 +183,7 @@ class Order implements TimestampableInterface
         return $this->taxAmount;
     }
 
-    public function setTax(int $taxAmount): static
+    public function setTaxAmount(int $taxAmount): static
     {
         $this->taxAmount = $taxAmount;
 
