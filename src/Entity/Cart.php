@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 #[ORM\Index(name: 'idx_user_active_cart', columns: ['user_id', 'status'], options: ['where' => '(status = 1)'])]
 #[ORM\UniqueConstraint(name: 'uniq_user_active_cart', columns: ['user_id', 'status'], options: ['where' => '(status = 1)'])]
+#[ORM\UniqueConstraint(name: 'uniq_session_active_cart', columns: ['session_id', 'status'], options: ['where' => '(status = 1 AND session_id IS NOT NULL)'])]
 #[ORM\HasLifecycleCallbacks]
 class Cart implements TimestampableInterface
 {
