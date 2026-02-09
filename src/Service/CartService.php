@@ -111,23 +111,33 @@ readonly class CartService
         ];
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function addToCart(Product $product, int $qty): void
     {
-        $cart = $this->getOrCreateCart();
+        $this->entityManager->beginTransaction();
+        try {
+            $cart = $this->getOrCreateCart();
 
-        $cartItem = $cart->getCartItems()->findFirst(function ($key, CartItem $cartItem) use ($product) {
-            return $cartItem->getProduct()->getId() === $product->getId();
-        });
-        if (!empty($cartItem)) {
-            $cartItem->setQty($cartItem->getQty() + $qty);
-        } else {
-            $cartItem = new CartItem();
-            $cartItem->setProduct($product);
-            $cartItem->setQty($qty);
-            $cartItem->setCart($cart);
+            $cartItem = $cart->getCartItems()->findFirst(function ($key, CartItem $cartItem) use ($product) {
+                return $cartItem->getProduct()->getId() === $product->getId();
+            });
+            if (!empty($cartItem)) {
+                $cartItem->setQty($cartItem->getQty() + $qty);
+            } else {
+                $cartItem = new CartItem();
+                $cartItem->setProduct($product);
+                $cartItem->setQty($qty);
+                $cartItem->setCart($cart);
+            }
+
+            $this->entityManager->persist($cartItem);
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+        } catch (\Throwable $exception) {
+            $this->entityManager->rollback();
+            throw $exception;
         }
-
-        $this->entityManager->persist($cartItem);
-        $this->entityManager->flush();
     }
 }

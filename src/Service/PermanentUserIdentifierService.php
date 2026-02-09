@@ -5,13 +5,11 @@ namespace App\Service;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class PermanentUserIdentifierService
+readonly class PermanentUserIdentifierService
 {
-    private RequestStack $requestStack;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
     public function getUserSessionId(): ?string
