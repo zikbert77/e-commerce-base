@@ -23,9 +23,9 @@ final class CartController extends AbstractController
     #[Route('/cart', name: 'app_api_cart_add', methods: ['POST'])]
     public function add(Request $request, ProductRepository $productRepository, CartService $cartService): JsonResponse
     {
-        $productId = $request->request->get('productId');
-        $qty = $request->request->get('qty');
-        if (empty($productId) || empty($qty)) {
+        $productId = $request->request->getInt('productId');
+        $qty = $request->request->getInt('qty');
+        if ($productId <= 0 || $qty <= 0 || $qty > 9999) {
             throw new BadRequestHttpException();
         }
 

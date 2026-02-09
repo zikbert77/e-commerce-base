@@ -8,6 +8,7 @@ use App\Entity\Enum\CartStatus;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\CartRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -50,8 +51,33 @@ readonly class CartService
         $cart->setSessionId($this->userSessionId);
 
         $this->entityManager->persist($cart);
+        $this->entityManager->flush();
 
         return $cart;
+    }
+
+    /**
+     * Gets existing cart or creates a new one.
+     * Handles race conditions where multiple concurrent requests might try to create a cart.
+     */
+    public function getOrCreateCart(): Cart
+    {
+        $cart = $this->getCart();
+        if ($cart !== null) {
+            return $cart;
+        }
+
+        try {
+            return $this->createCart();
+        } catch (UniqueConstraintViolationException) {
+            // Another concurrent request created the cart, fetch it
+            $cart = $this->getCart();
+            if ($cart !== null) {
+                return $cart;
+            }
+            // If still null, re-throw the original exception
+            throw new \RuntimeException('Unable to create or retrieve cart after constraint violation');
+        }
     }
 
     public function getCartInfo(): array
@@ -87,10 +113,8 @@ readonly class CartService
 
     public function addToCart(Product $product, int $qty): void
     {
-        $cart = $this->getCart();
-        if (empty($cart)) {
-            $cart = $this->createCart();
-        }
+        $cart = $this->getOrCreateCart();
+
         $cartItem = $cart->getCartItems()->findFirst(function ($key, CartItem $cartItem) use ($product) {
             return $cartItem->getProduct()->getId() === $product->getId();
         });
