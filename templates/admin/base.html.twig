@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
     <title>{% block title %}Admin{% endblock %} — Admin Panel</title>
     {% block javascripts %}
         {{ importmap('admin') }}
@@ -56,7 +57,7 @@
     <div class="sidebar-footer">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-muted" href="#">
+                <a class="nav-link text-muted" href="javascript:void(0)">
                     <i class="bi bi-gear"></i> Settings
                 </a>
             </li>
@@ -75,7 +76,7 @@
     <div class="flex-grow-1"></div>
 
     <div class="d-none d-md-block">
-        <input type="search" class="form-control form-control-sm" placeholder="Search..." style="width:200px">
+        <input type="search" class="form-control form-control-sm" placeholder="Search..." style="width:200px" aria-label="Search">
     </div>
 
     {# Notification bell #}
@@ -94,10 +95,10 @@
            href="#" data-bs-toggle="dropdown" aria-expanded="false">
             <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
                  style="width:32px;height:32px;background:var(--admin-accent);font-size:13px;flex-shrink:0">
-                {{ app.user ? app.user.firstName|first|upper : 'A' }}
+                {{ app.user and app.user.firstName ? app.user.firstName|first|upper : 'A' }}
             </div>
             <span class="d-none d-md-inline small fw-semibold">
-                {{ app.user ? (app.user.firstName ~ ' ' ~ app.user.lastName) : 'Admin' }}
+                {{ app.user ? (app.user.firstName ?? '') ~ ' ' ~ (app.user.lastName ?? '') : 'Admin' }}
             </span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
@@ -107,7 +108,7 @@
                 </div>
             </li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-person me-2"></i>Profile</a></li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
