@@ -16,6 +16,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class ProductController extends AbstractController
 {
+    private const SUPPORTED_LOCALES = ['en', 'uk', 'de', 'fr', 'es', 'pl'];
+
+    private function resolveLocale(Request $request): string
+    {
+        $locale = $request->query->get('locale', 'en');
+        return in_array($locale, self::SUPPORTED_LOCALES, true) ? $locale : 'en';
+    }
+
     #[Route('/admin/products', name: 'admin_product_index')]
     public function index(ProductRepository $repo): Response
     {
@@ -27,7 +35,7 @@ class ProductController extends AbstractController
     #[Route('/admin/products/new', name: 'admin_product_create')]
     public function create(Request $request, EntityManagerInterface $em): Response
     {
-        $locale = $request->query->get('locale', 'en');
+        $locale = $this->resolveLocale($request);
         $product = new Product();
         $productInfo = new ProductInfo();
         $productInfo->setLocale($locale);
@@ -61,10 +69,10 @@ class ProductController extends AbstractController
     #[Route('/admin/products/{id}/edit', name: 'admin_product_edit')]
     public function edit(Product $product, Request $request, EntityManagerInterface $em): Response
     {
-        $locale = $request->query->get('locale', 'en');
+        $locale = $this->resolveLocale($request);
 
         $productInfo = $product->getProductInfoByLocale($locale);
-        $isNew = $productInfo === null || $productInfo === false;
+        $isNew = $productInfo === null;
 
         if ($isNew) {
             $productInfo = new ProductInfo();
@@ -111,6 +119,8 @@ class ProductController extends AbstractController
             $em->remove($product);
             $em->flush();
             $this->addFlash('success', 'Product deleted.');
+        } else {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
         }
 
         return $this->redirectToRoute('admin_product_index');

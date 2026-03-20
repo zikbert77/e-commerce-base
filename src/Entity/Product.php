@@ -102,13 +102,15 @@ class Product implements TimestampableInterface
 
     public function getProductInfoByLocale(string $locale): ?ProductInfo
     {
-        if (empty($this->productInfos)) {
+        if ($this->productInfos->isEmpty()) {
             return null;
         }
 
-        return $this->productInfos->filter(function (ProductInfo $productInfo) use ($locale) {
+        $result = $this->productInfos->filter(function (ProductInfo $productInfo) use ($locale) {
             return $productInfo->getLocale() === $locale;
         })->first();
+
+        return $result === false ? null : $result;
     }
 
     public function getCreator(): ?User

@@ -16,6 +16,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class CategoryController extends AbstractController
 {
+    private const SUPPORTED_LOCALES = ['en', 'uk', 'de', 'fr', 'es', 'pl'];
+
+    private function resolveLocale(Request $request): string
+    {
+        $locale = $request->query->get('locale', 'en');
+        return in_array($locale, self::SUPPORTED_LOCALES, true) ? $locale : 'en';
+    }
+
     #[Route('/admin/categories', name: 'admin_category_index')]
     public function index(CategoryRepository $repo): Response
     {
@@ -27,7 +35,7 @@ class CategoryController extends AbstractController
     #[Route('/admin/categories/new', name: 'admin_category_create')]
     public function create(Request $request, EntityManagerInterface $em): Response
     {
-        $locale = $request->query->get('locale', 'en');
+        $locale = $this->resolveLocale($request);
         $category = new Category();
         $categoryInfo = new CategoryInfo();
         $categoryInfo->setLocale($locale);
@@ -61,7 +69,7 @@ class CategoryController extends AbstractController
     #[Route('/admin/categories/{id}/edit', name: 'admin_category_edit')]
     public function edit(Category $category, Request $request, EntityManagerInterface $em): Response
     {
-        $locale = $request->query->get('locale', 'en');
+        $locale = $this->resolveLocale($request);
 
         $categoryInfo = $this->getCategoryInfoByLocale($category, $locale);
         $isNew = $categoryInfo === null;
@@ -113,6 +121,8 @@ class CategoryController extends AbstractController
             $em->remove($category);
             $em->flush();
             $this->addFlash('success', 'Category deleted.');
+        } else {
+            $this->addFlash('error', 'Invalid security token. Please try again.');
         }
 
         return $this->redirectToRoute('admin_category_index');
