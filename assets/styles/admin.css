@@ -161,4 +161,8 @@
     .admin-topbar {
         left: 0;
     }
+
+    .admin-sidebar.is-open {
+        transform: translateX(0);
+    }
 }
