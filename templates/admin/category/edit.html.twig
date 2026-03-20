@@ -1,0 +1,82 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Category{% endblock %}
+{% block page_title %}Categories / Edit{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <h5 class="mb-0 fw-bold">Edit Category #{{ category.id }}</h5>
+        <div class="d-flex gap-1">
+            {% for availLocale in availableLocales %}
+                <a href="{{ path('admin_category_edit', {id: category.id, locale: availLocale}) }}"
+                   class="btn btn-sm {{ locale == availLocale ? 'btn-primary' : 'btn-outline-secondary' }}">
+                    {{ availLocale|upper }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    <a href="{{ path('admin_category_index') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to list
+    </a>
+</div>
+
+{{ form_start(form) }}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">
+                    Category Info
+                    <span class="badge bg-secondary ms-2">{{ locale|upper }}</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.categoryInfo.title, {label: 'Title'}) }}
+                {{ form_row(form.categoryInfo.slug, {label: 'Slug'}) }}
+                {{ form_row(form.categoryInfo.short_description, {label: 'Short Description'}) }}
+                {{ form_row(form.categoryInfo.description, {label: 'Description'}) }}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">SEO</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.categoryInfo.seoTitle, {label: 'SEO Title'}) }}
+                {{ form_row(form.categoryInfo.seoDescription, {label: 'SEO Description'}) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">Settings</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.parent, {label: 'Parent Category'}) }}
+                {{ form_row(form.status, {label: 'Status'}) }}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">Info</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-muted small">Created: {{ category.createdAt|date('Y-m-d H:i') }}</div>
+                <div class="text-muted small">Updated: {{ category.updatedAt|date('Y-m-d H:i') }}</div>
+            </div>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+{% endblock %}

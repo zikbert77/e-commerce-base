@@ -1,0 +1,86 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Product{% endblock %}
+{% block page_title %}Products / Edit{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <h5 class="mb-0 fw-bold">Edit Product #{{ product.id }}</h5>
+        <div class="d-flex gap-1">
+            {% for availLocale in availableLocales %}
+                <a href="{{ path('admin_product_edit', {id: product.id, locale: availLocale}) }}"
+                   class="btn btn-sm {{ locale == availLocale ? 'btn-primary' : 'btn-outline-secondary' }}">
+                    {{ availLocale|upper }}
+                </a>
+            {% endfor %}
+            <a href="{{ path('admin_product_edit', {id: product.id, locale: 'fr'}) }}"
+               class="btn btn-sm btn-outline-success" title="Add French locale">
+                <i class="bi bi-plus"></i> Add locale
+            </a>
+        </div>
+    </div>
+    <a href="{{ path('admin_product_index') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to list
+    </a>
+</div>
+
+{{ form_start(form) }}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">
+                    Product Info
+                    <span class="badge bg-secondary ms-2">{{ locale|upper }}</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.productInfo.title, {label: 'Title'}) }}
+                {{ form_row(form.productInfo.slug, {label: 'Slug'}) }}
+                {{ form_row(form.productInfo.short_description, {label: 'Short Description'}) }}
+                {{ form_row(form.productInfo.description, {label: 'Description'}) }}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">SEO</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.productInfo.seoTitle, {label: 'SEO Title'}) }}
+                {{ form_row(form.productInfo.seoDescription, {label: 'SEO Description'}) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">Settings</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.category, {label: 'Category'}) }}
+                {{ form_row(form.status, {label: 'Status'}) }}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">Info</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-muted small">Created: {{ product.createdAt|date('Y-m-d H:i') }}</div>
+                <div class="text-muted small">Updated: {{ product.updatedAt|date('Y-m-d H:i') }}</div>
+            </div>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+{% endblock %}

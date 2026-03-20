@@ -1,0 +1,62 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}New Product{% endblock %}
+{% block page_title %}Products / New{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h5 class="mb-0 fw-bold">Create Product</h5>
+    <a href="{{ path('admin_product_index') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to list
+    </a>
+</div>
+
+{{ form_start(form, {attr: {class: 'needs-validation', novalidate: 'novalidate'}}) }}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">
+                    Product Info
+                    <span class="badge bg-secondary ms-2">{{ locale|upper }}</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.productInfo.title, {label: 'Title'}) }}
+                {{ form_row(form.productInfo.slug, {label: 'Slug'}) }}
+                {{ form_row(form.productInfo.short_description, {label: 'Short Description'}) }}
+                {{ form_row(form.productInfo.description, {label: 'Description'}) }}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">SEO</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.productInfo.seoTitle, {label: 'SEO Title'}) }}
+                {{ form_row(form.productInfo.seoDescription, {label: 'SEO Description'}) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">Settings</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.category, {label: 'Category'}) }}
+                {{ form_row(form.status, {label: 'Status'}) }}
+            </div>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Create Product
+            </button>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+{% endblock %}

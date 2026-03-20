@@ -1,0 +1,53 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}New User{% endblock %}
+{% block page_title %}Users / New{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h5 class="mb-0 fw-bold">Create User</h5>
+    <a href="{{ path('admin_user_index') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to list
+    </a>
+</div>
+
+{{ form_start(form) }}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">User Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">{{ form_row(form.first_name, {label: 'First Name'}) }}</div>
+                    <div class="col-md-6">{{ form_row(form.last_name, {label: 'Last Name'}) }}</div>
+                    <div class="col-md-6">{{ form_row(form.middle_name, {label: 'Middle Name'}) }}</div>
+                    <div class="col-md-6">{{ form_row(form.phone, {label: 'Phone'}) }}</div>
+                    <div class="col-12">{{ form_row(form.email, {label: 'Email'}) }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-semibold">Permissions</h6>
+            </div>
+            <div class="card-body">
+                {{ form_row(form.roles, {label: 'Roles'}) }}
+                {{ form_row(form.status, {label: 'Status'}) }}
+                {{ form_row(form.is_verified, {label: 'Email Verified'}) }}
+            </div>
+        </div>
+
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Create User
+            </button>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+{% endblock %}

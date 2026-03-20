@@ -1,0 +1,74 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+
+{% block body %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+        <h6 class="mb-0 fw-semibold">All Categories</h6>
+        <a href="{{ path('admin_category_create') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> New Category
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if categories is empty %}
+            <p class="text-muted text-center py-4 mb-0">No categories yet.</p>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">#</th>
+                            <th>Title</th>
+                            <th>Parent</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            {% set info = category.categoryInfos.first() %}
+                            <tr>
+                                <td class="ps-4 text-muted">{{ category.id }}</td>
+                                <td class="fw-semibold">{{ info ? info.title : '(no title)' }}</td>
+                                <td>
+                                    {% if category.parent %}
+                                        {% set parentInfo = category.parent.categoryInfos.first() %}
+                                        {{ parentInfo ? parentInfo.title : 'Category #' ~ category.parent.id }}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if category.status == 1 %}
+                                        <span class="badge rounded-pill text-bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill text-bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">{{ category.createdAt|date('Y-m-d') }}</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a href="{{ path('admin_category_edit', {id: category.id}) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('admin_category_delete', {id: category.id}) }}"
+                                              onsubmit="return confirm('Delete this category?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_category_' ~ category.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
