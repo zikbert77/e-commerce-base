@@ -14,10 +14,6 @@
                     {{ availLocale|upper }}
                 </a>
             {% endfor %}
-            <a href="{{ path('admin_product_edit', {id: product.id, locale: 'fr'}) }}"
-               class="btn btn-sm btn-outline-success" title="Add French locale">
-                <i class="bi bi-plus"></i> Add locale
-            </a>
         </div>
     </div>
     <a href="{{ path('admin_product_index') }}" class="btn btn-sm btn-outline-secondary">

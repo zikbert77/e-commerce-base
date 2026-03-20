@@ -35,11 +35,14 @@
                             <td class="fw-semibold">{{ user.firstName }} {{ user.lastName }}</td>
                             <td class="text-muted small">{{ user.email }}</td>
                             <td>
-                                {% for role in user.roles %}
-                                    {% if role != 'ROLE_USER' %}
+                                {% set extraRoles = user.roles|filter(r => r != 'ROLE_USER') %}
+                                {% if extraRoles is empty %}
+                                    <span class="text-muted small">—</span>
+                                {% else %}
+                                    {% for role in extraRoles %}
                                         <span class="badge text-bg-primary">{{ role|replace({'ROLE_': ''})|lower|capitalize }}</span>
-                                    {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
                             </td>
                             <td>
                                 {% if user.status == 1 %}
