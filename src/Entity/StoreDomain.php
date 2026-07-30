@@ -17,7 +17,7 @@ class StoreDomain
     #[ORM\JoinColumn(nullable: false)]
     private ?Store $store = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $domain = null;
 
     public function getId(): ?int

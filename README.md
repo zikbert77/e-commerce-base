@@ -1,12 +1,13 @@
 # E-Commerce Base
 
-Symfony 7.3 e-commerce application with PostgreSQL database. The project implements a multilingual product catalog system with user authentication, email verification, and hierarchical category structure.
+Symfony 7.3 e-commerce application with PostgreSQL database. The project implements a multilingual product catalog system with user authentication, email verification, hierarchical category structure, and multi-store (multi-tenant) support resolved by domain.
 
 ## Table of Contents
 
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
 - [Architecture](#architecture)
+- [Multi-Store Resolution](#multi-store-resolution)
 - [Monetary Values](#monetary-values)
 - [Entity Structure](#entity-structure)
 - [Common Commands](#common-commands)
@@ -65,6 +66,21 @@ All entities implement `TimestampableInterface` using `andanteproject/timestampa
 - **Naming Strategy**: `underscore_number_aware` (converts `firstName` → `first_name`)
 - **Connection**: Configured via `DATABASE_URL` environment variable
 - **Migrations**: Located in `migrations/` directory
+
+### Caching
+
+- **`store.cache` pool**: APCu-backed, tag-aware, 300s default lifetime (`config/packages/cache.yaml`) — used to cache domain-to-store resolution
+- APCu is installed and enabled in the Docker PHP image
+
+## Multi-Store Resolution
+
+The application can serve multiple stores (tenants) from a single codebase, resolved per-request from the HTTP host:
+
+- **`Store`**: Core tenant entity (title, status)
+- **`StoreDomain`**: Maps a domain string to a `Store`
+- On each request, `StoreResolverSubscriber` resolves the current `Store` from the request host (via `StoreResolver`, cached in the `store.cache` APCu pool) and stores it in `StoreContext`. Unmatched hosts result in a 404.
+- Once resolved, Doctrine's `store_filter` SQL filter is enabled, automatically scoping queries for any entity implementing `App\Entity\Interface\StoreScopedInterface` to `store_id = :storeId`.
+- To make an entity store-scoped: implement `StoreScopedInterface` and add a `store` relation.
 
 ## Monetary Values
 
@@ -214,6 +230,25 @@ User
 ├── Email verification system (SymfonyCasts VerifyEmailBundle)
 ├── is_verified: boolean flag
 └── Reset password functionality (SymfonyCasts ResetPasswordBundle)
+```
+
+#### Store
+```
+Store
+├── id: int
+├── title: string (255 chars)
+├── status: BaseStatus (enum)
+├── storeDomains: Collection<StoreDomain>
+├── created_at: DateTimeImmutable
+└── updated_at: DateTimeImmutable
+```
+
+#### StoreDomain
+```
+StoreDomain
+├── id: int
+├── store: Store (required)
+└── domain: string (255 chars)
 ```
 
 ### Info Entities

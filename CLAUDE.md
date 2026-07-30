@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Symfony 7.3 e-commerce application with PostgreSQL database. The project implements a multilingual product catalog system with user authentication, email verification, and hierarchical category structure.
+Symfony 7.3 e-commerce application with PostgreSQL database. The project implements a multilingual product catalog system with user authentication, email verification, hierarchical category structure, and multi-store (multi-tenant) support resolved by domain.
 
 ## Common Commands
 
@@ -109,11 +109,30 @@ Product
 ├── category → Category (required)
 └── productInfos → Collection<ProductInfo>
 
+Store
+└── storeDomains → Collection<StoreDomain>
+
+StoreDomain
+└── store → Store (required)
+
 User
 ├── Authentication via email/password
 ├── Email verification system (SymfonyCasts VerifyEmailBundle)
 └── Reset password functionality (SymfonyCasts ResetPasswordBundle)
 ```
+
+### Multi-Store (Multi-Tenant) Resolution
+
+The application supports multiple stores served from a single codebase, resolved per-request by the incoming HTTP host:
+
+- **`Store`**: Core tenant entity (`title`, `status` via `BaseStatus` enum, `storeDomains`)
+- **`StoreDomain`**: Maps a domain string to a `Store` (many-to-one)
+- **`StoreResolver`** (`src/Service/Store/StoreResolver.php`): Resolves a `Store` from the request host, normalizing it (lowercase, strips port, strips `www.`) and caching the `store_id` lookup in the `store.cache` pool (APCu, tagged `store_domains`, TTL from `CacheLifetime::STORE_RESOLVER` = 300s). Null results are cached too, to avoid repeated DB lookups for unknown hosts.
+- **`StoreResolverSubscriber`** (`src/EventSubscriber/StoreResolverSubscriber.php`): On `kernel.request` (priority 30, main requests only, skips `/_*` profiler/dev paths), resolves the store for the host and throws `NotFoundHttpException` if no store matches. Otherwise stores it in `StoreContext` and enables Doctrine's `store_filter` SQL filter with the resolved `storeId`.
+- **`StoreContext`** (`src/Service/Store/StoreContext.php`): Request-scoped holder for the current `Store`; reset automatically between requests via the `kernel.reset` tag.
+- **`StoreFilter`** (`src/Doctrine/StoreFilter.php`): A Doctrine `SQLFilter` (registered as `store_filter`, disabled by default) that automatically adds a `store_id = :storeId` constraint to any entity implementing `App\Entity\Interface\StoreScopedInterface`.
+
+**To scope an entity to a store**: implement `StoreScopedInterface` and add a `store` relation — the `store_filter` will then automatically restrict queries to the current store once enabled by `StoreResolverSubscriber`.
 
 ### Timestamps
 
@@ -127,6 +146,11 @@ All entities implement `TimestampableInterface` using `andanteproject/timestampa
 - **Naming Strategy**: `underscore_number_aware` (converts `firstName` → `first_name`)
 - **Connection**: Configured via `DATABASE_URL` environment variable
 - **Migrations**: Located in `migrations/` directory
+
+### Caching
+
+- **`store.cache` pool**: APCu-backed (`cache.adapter.apcu`), tag-aware, 300s default lifetime — used by `StoreResolver` to cache host-to-store lookups (see `config/packages/cache.yaml`)
+- APCu is enabled in the Docker PHP image (`docker/php/Dockerfile`, `docker/php/php.ini`)
 
 ### Security
 

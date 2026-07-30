@@ -4,6 +4,7 @@ namespace App\Service\Store;
 
 use App\Entity\Store;
 use App\Entity\StoreDomain;
+use App\Enum\BaseStatus;
 use App\Enum\CacheLifetime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -30,14 +31,17 @@ final readonly class StoreResolver
 
             $domain = $this->em->getRepository(StoreDomain::class)
                 ->createQueryBuilder('sd')
-                ->select('IDENTITY(sd.store)')
+                ->select('IDENTITY(sd.store) AS storeId')
+                ->innerJoin('sd.store', 's')
                 ->andWhere('sd.domain = :domain')
+                ->andWhere('s.status = :status')
                 ->setParameter('domain', $host)
+                ->setParameter('status', BaseStatus::ACTIVE)
                 ->getQuery()
                 ->getOneOrNullResult();
 
             // cache null to prevent multiple DB requests
-            return $domain[1] ?? null;
+            return $domain['storeId'] ?? null;
         });
 
         if ($storeId === null) {
