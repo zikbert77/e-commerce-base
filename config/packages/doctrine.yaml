@@ -26,7 +26,10 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: false
-
+        filters:
+            store_filter:
+                class: App\Doctrine\StoreFilter
+                enabled: false   # turn on manually after store resolve
 when@test:
     doctrine:
         dbal:
