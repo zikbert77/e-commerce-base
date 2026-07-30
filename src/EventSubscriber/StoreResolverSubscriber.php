@@ -31,7 +31,6 @@ final readonly class StoreResolverSubscriber implements EventSubscriberInterface
             return;
         }
 
-
         $request = $event->getRequest();
         // dev toolbar, profiler, fragment-рендери
         if (str_starts_with($request->getPathInfo(), '/_')) {
