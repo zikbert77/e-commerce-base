@@ -2,12 +2,16 @@
 
 namespace App\Entity;
 
+use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
+use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
 use App\Repository\StoreDomainRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StoreDomainRepository::class)]
-class StoreDomain
+class StoreDomain implements TimestampableInterface
 {
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
