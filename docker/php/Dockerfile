@@ -6,11 +6,14 @@ RUN apk add --no-cache \
         postgresql-dev \
         git \
         unzip \
+        $PHPIZE_DEPS \
     && docker-php-ext-install \
         intl \
         zip \
         pdo_pgsql \
-        opcache
+        opcache \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
