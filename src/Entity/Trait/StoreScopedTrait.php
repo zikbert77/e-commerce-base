@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait StoreScopedTrait
 {
+    #[ORM\ManyToOne(targetEntity: Store::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Store $store = null;
 

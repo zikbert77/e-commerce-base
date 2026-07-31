@@ -38,7 +38,6 @@ final class Version20260731064629 extends AbstractMigration
         $this->addSql('ALTER TABLE category DROP CONSTRAINT FK_64C19C1B092A811');
         $this->addSql('DROP INDEX IDX_64C19C1B092A811');
         $this->addSql('ALTER TABLE category DROP store_id');
-        $this->addSql('ALTER TABLE store_domain ALTER created_at SET DEFAULT CURRENT_TIMESTAMP');
         $this->addSql('ALTER TABLE "order" DROP CONSTRAINT FK_F5299398B092A811');
         $this->addSql('DROP INDEX IDX_F5299398B092A811');
         $this->addSql('ALTER TABLE "order" DROP store_id');
