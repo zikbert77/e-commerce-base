@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
+use App\Entity\Interface\StoreScopedInterface;
+use App\Entity\Trait\StoreScopedTrait;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,9 +13,10 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-class Category implements TimestampableInterface
+class Category implements TimestampableInterface, StoreScopedInterface
 {
     use TimestampableTrait;
+    use StoreScopedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
+use App\Entity\Interface\StoreScopedInterface;
+use App\Entity\Trait\StoreScopedTrait;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Enum\OrderStatus;
 use App\Repository\OrderRepository;
@@ -14,9 +16,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
-class Order implements TimestampableInterface
+class Order implements TimestampableInterface, StoreScopedInterface
 {
     use TimestampableTrait;
+    use StoreScopedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
