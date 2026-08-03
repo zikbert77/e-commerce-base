@@ -20,10 +20,6 @@ class Product implements TimestampableInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Category $category = null;
-
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $status = null;
 
@@ -36,26 +32,21 @@ class Product implements TimestampableInterface
     #[ORM\ManyToOne]
     private ?User $creator = null;
 
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'products')]
+    private Collection $categories;
+
     public function __construct()
     {
         $this->productInfos = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCategory(): ?Category
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?Category $category): static
-    {
-        $this->category = $category;
-
-        return $this;
     }
 
     public function getStatus(): ?int
@@ -119,6 +110,33 @@ class Product implements TimestampableInterface
     public function setCreator(?User $creator): static
     {
         $this->creator = $creator;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeProduct($this);
+        }
 
         return $this;
     }
