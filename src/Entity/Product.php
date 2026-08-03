@@ -126,6 +126,7 @@ class Product implements TimestampableInterface
     {
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
+            $category->addProduct($this);
         }
 
         return $this;
@@ -133,7 +134,9 @@ class Product implements TimestampableInterface
 
     public function removeCategory(Category $category): static
     {
-        $this->categories->removeElement($category);
+        if ($this->categories->removeElement($category)) {
+            $category->removeProduct($this);
+        }
 
         return $this;
     }
