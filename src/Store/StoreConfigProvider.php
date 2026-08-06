@@ -28,7 +28,9 @@ final readonly class StoreConfigProvider
 
                 $store = $this->em->getRepository(Store::class)->find($storeId);
                 if (!$store) {
-                    throw new StoreNotFoundException($storeId);
+                    throw new StoreNotFoundException(
+                        sprintf('Store with id %d not found', $storeId)
+                    );
                 }
 
                 return StoreDtoFactory::fromEntity($store);

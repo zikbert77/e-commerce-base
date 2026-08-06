@@ -2,7 +2,7 @@
 
 namespace App\Store\DTO;
 
-final class StoreSettingsDTO
+readonly final class StoreSettingsDTO
 {
     public function __construct(
         private string $template
@@ -13,12 +13,5 @@ final class StoreSettingsDTO
     public function getTemplate(): string
     {
         return $this->template;
-    }
-
-    public function setTemplate(string $template): StoreSettingsDTO
-    {
-        $this->template = $template;
-
-        return $this;
     }
 }
