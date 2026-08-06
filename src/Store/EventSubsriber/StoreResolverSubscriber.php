@@ -1,13 +1,14 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\Store\EventSubsriber;
 
-use App\Service\Store\StoreContext;
-use App\Service\Store\StoreResolver;
+use App\Store\StoreConfigProvider;
+use App\Store\StoreContext;
+use App\Store\StoreResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use App\Store\Exception\StoreNotFoundException;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final readonly class StoreResolverSubscriber implements EventSubscriberInterface
@@ -15,6 +16,7 @@ final readonly class StoreResolverSubscriber implements EventSubscriberInterface
     public function __construct(
         private StoreResolver          $resolver,
         private StoreContext           $context,
+        private StoreConfigProvider    $configProvider,
         private EntityManagerInterface $em,
     ) {}
 
@@ -38,16 +40,17 @@ final readonly class StoreResolverSubscriber implements EventSubscriberInterface
         }
 
         $host = $event->getRequest()->getHost();
-        $store = $this->resolver->resolveByHost($host);
-
-        if ($store === null) {
-            throw new NotFoundHttpException('Store not found for host: ' . $host);
+        $storeId = $this->resolver->resolveStoreIdByHost($host);
+        if (empty($storeId)) {
+            throw new StoreNotFoundException('Store not found for host: ' . $host);
         }
 
-        $this->context->set($store);
+        $storeDto = $this->configProvider->getConfig($storeId);
+
+        $this->context->set($storeDto);
 
         $this->em->getFilters()
             ->enable('store_filter')
-            ->setParameter('storeId', $store->getId());
+            ->setParameter('storeId', $storeDto->getId());
     }
 }

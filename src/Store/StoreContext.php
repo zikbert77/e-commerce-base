@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Service\Store;
+namespace App\Store;
 
-use App\Entity\Store;
+use App\Store\DTO\StoreDTO;
 use Symfony\Contracts\Service\ResetInterface;
 
 final class StoreContext implements ResetInterface
 {
-    private ?Store $store = null;
+    private ?StoreDto $store = null;
 
-    public function set(Store $store): void
+    public function set(StoreDto $store): void
     {
         $this->store = $store;
     }
 
-    public function get(): Store
+    public function get(): StoreDto
     {
         if ($this->store === null) {
             throw new \RuntimeException('Store context not initialized.');
