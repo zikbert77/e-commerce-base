@@ -16,9 +16,9 @@ services:
     App\:
         resource: '../src/'
 
-    App\Service\Store\StoreResolver:
+    App\Store\StoreResolver:
         arguments:
-            $storeCache: '@store.cache'
-    App\Service\Store\StoreContext:
+            $cache: '@store.cache'
+    App\Store\StoreContext:
         tags:
             - { name: 'kernel.reset', method: 'reset' }
