@@ -15,4 +15,14 @@ class TemplateRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Template::class);
     }
+
+    public function getDefault(): Template
+    {
+        $template = $this->findOneBy(['code' => 'default', 'isActive' => true]);
+        if (empty($template)) {
+            throw new \RuntimeException('Default template (code=default) is not configured.');
+        }
+
+        return $template;
+    }
 }

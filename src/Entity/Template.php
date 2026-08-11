@@ -27,7 +27,7 @@ class Template implements TimestampableInterface
     private ?bool $isActive = null;
 
     #[ORM\Column(type: 'jsonb')]
-    private $defaultConfig = null;
+    private array $defaultConfig = [];
 
     public function getId(): ?int
     {
