@@ -22,3 +22,8 @@ services:
     App\Store\StoreContext:
         tags:
             - { name: 'kernel.reset', method: 'reset' }
+    App\Twig\Loader\ThemeAwareLoader:
+        arguments:
+            $themesRootDir: '%kernel.project_dir%/templates/themes'
+        tags:
+            - { name: 'twig.loader', priority: 100 }
