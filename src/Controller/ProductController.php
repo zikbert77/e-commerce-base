@@ -11,11 +11,8 @@ class ProductController extends BaseController
     #[Route('/{slug}', name: 'app_product_view', methods: ['GET'])]
     public function view(string $slug): Response
     {
-        $store = $this->storeContext->get();
-
         /** @see templates/themes/{active}/product.html.twig */
-        return $this->render('themes/' . $store->getTemplate()->getCode() . '/product.html.twig', [
-            'store' => $store,
+        return $this->render('@theme/product.html.twig', [
             'slug' => $slug,
         ]);
     }

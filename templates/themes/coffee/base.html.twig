@@ -396,15 +396,15 @@
 
 {% block body %}
     <div class="zerno-theme">
-        {% include 'themes/coffee/partials/_topbar.html.twig' %}
-        {% include 'themes/coffee/partials/_header.html.twig' %}
+        {% include '@theme/partials/_topbar.html.twig' %}
+        {% include '@theme/partials/_header.html.twig' %}
 
         <main>
             {% block content %}{% endblock %}
         </main>
 
-        {% include 'themes/coffee/partials/_footer.html.twig' %}
-        {% include 'themes/coffee/partials/_cart_modal.html.twig' %}
+        {% include '@theme/partials/_footer.html.twig' %}
+        {% include '@theme/partials/_cart_modal.html.twig' %}
     </div>
 
     <script>

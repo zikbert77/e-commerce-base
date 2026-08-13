@@ -10,22 +10,14 @@ final class PageController extends BaseController
     #[Route('/about', name: 'app_page_about', methods: ['GET'])]
     public function about(): Response
     {
-        $store = $this->storeContext->get();
-
         /** @see templates/themes/{active}/about.html.twig */
-        return $this->render('themes/' . $store->getTemplate()->getCode() . '/about.html.twig', [
-            'store' => $store,
-        ]);
+        return $this->render('@theme/about.html.twig');
     }
 
     #[Route('/contacts', name: 'app_page_contacts', methods: ['GET'])]
     public function contacts(): Response
     {
-        $store = $this->storeContext->get();
-
         /** @see templates/themes/{active}/contacts.html.twig */
-        return $this->render('themes/' . $store->getTemplate()->getCode() . '/contacts.html.twig', [
-            'store' => $store,
-        ]);
+        return $this->render('@theme/contacts.html.twig');
     }
 }

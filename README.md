@@ -85,13 +85,27 @@ The application can serve multiple stores (tenants) from a single codebase, reso
 
 ## Theme System
 
-Each store renders through a **theme**: a directory of Twig templates at `templates/themes/{code}/`, where `{code}` is the store's `Template.code` (resolved as `$store->getTemplate()->getCode()`). There's no theme-resolver service — every storefront controller inlines the path itself:
+Each store renders through a **theme**: a directory of Twig templates at `templates/themes/{code}/`, where `{code}` is the store's `Template.code`. Resolution happens in a custom Twig loader, not in controllers:
+
+- **`ThemeAwareLoader`** (`src/Twig/Loader/ThemeAwareLoader.php`) is registered as a `twig.loader` service with the `theme` namespace pointed at `templates/themes`. Any template name starting with `@theme/` gets rewritten to `@theme/{current store's template code}/...` (via `StoreContext`) before being looked up. Other template names (like the app-level `base.html.twig`) fall through to Symfony's default loader.
+- **`StoreGlobalsExtension`** (`src/Twig/Extension/StoreGlobalsExtension.php`) is a Twig extension (auto-registered — no config needed, `autoconfigure: true` picks it up) that injects the current `StoreDTO` as a Twig **global** named `store`, available in every template automatically. Controllers no longer need to pass `'store' => ...` on every `render()` call.
+
+Controllers and theme templates just use the `@theme/` prefix — no code interpolation, no hardcoded theme name, and no manual `store` variable:
 
 ```php
-$store = $this->storeContext->get();
-return $this->render('themes/' . $store->getTemplate()->getCode() . '/home.html.twig', [
-    'store' => $store,
+// Controller — store is a Twig global, not passed here
+return $this->render('@theme/home.html.twig');
+
+// ...unless the action has its own data for the template
+return $this->render('@theme/product.html.twig', [
+    'slug' => $slug,
 ]);
+```
+```twig
+{# Inside a theme's own templates — `store` just works, no {% set %} needed #}
+{% extends '@theme/base.html.twig' %}
+{% include '@theme/partials/_header.html.twig' %}
+<h1>{{ store.title }}</h1>
 ```
 
 ### Directory structure
@@ -119,22 +133,22 @@ templates/themes/{code}/
 ### Required files & naming
 
 - **`base.html.twig`** is required for every theme — it extends the app shell (`templates/base.html.twig`), fills the `stylesheets` block with the theme's design tokens/CSS, and defines a `content` block that page templates override. It also nests a `page_title` block inside the app shell's `title` block, so pages can set the `<title>` without re-declaring `title` itself.
-- Every other top-level `*.html.twig` file must be **named exactly** what its controller interpolates (case-sensitive) — there's no fuzzy lookup, a mismatch is a 500 at render time.
+- Every other top-level `*.html.twig` file must be **named exactly** what its controller renders (case-sensitive) — there's no fuzzy lookup, a mismatch is a 500 at render time.
 - Partial/include-only files live under `partials/` and are prefixed with `_` (the file is never a controller's render target, only ever `{% include %}`d).
-- Twig's loader has no relative (`./`) include syntax, so `base.html.twig` includes its own partials by hardcoding its theme's own path, e.g. `{% include 'themes/coffee/partials/_header.html.twig' %}`. Copying a theme to a new code means updating those literal paths.
+- Because resolution goes through the `@theme/` namespace, a theme's own templates reference each other with `@theme/...` too (`{% extends '@theme/base.html.twig' %}`) instead of hardcoding the theme's own code — copying a theme to a new code needs no path changes inside it.
 
 ### Routing table
 
-| Route | Path | Controller | Theme file | Status |
+| Route | Path | Controller | Renders | Status |
 |---|---|---|---|---|
-| `app_home` | `/` | `MainController::index()` | `home.html.twig` | built (coffee) |
-| `app_catalog` | `/catalog` | `CatalogController::catalog()` | `catalog.html.twig` | built (coffee) |
-| `app_search` | `/catalog/search` | `CatalogController::search()` | `search.html.twig` | missing template |
-| `app_category` | `/catalog/category/{slug}` | `CatalogController::category()` | `category.html.twig` | missing template |
-| `app_product_view` | `/product/{slug}` | `ProductController::view()` | `product.html.twig` | built (coffee) |
-| `app_order_checkout` | `/order/checkout` | `OrderController::checkout()` | `checkout.html.twig` | built (coffee) |
-| `app_page_about` | `/about` | `PageController::about()` | `about.html.twig` | missing template |
-| `app_page_contacts` | `/contacts` | `PageController::contacts()` | `contacts.html.twig` | missing template |
+| `app_home` | `/` | `MainController::index()` | `@theme/home.html.twig` | built (coffee) |
+| `app_catalog` | `/catalog` | `CatalogController::catalog()` | `@theme/catalog.html.twig` | built (coffee) |
+| `app_search` | `/catalog/search` | `CatalogController::search()` | `@theme/search.html.twig` | missing template |
+| `app_category` | `/catalog/category/{slug}` | `CatalogController::category()` | `@theme/category.html.twig` | missing template |
+| `app_product_view` | `/product/{slug}` | `ProductController::view()` | `@theme/product.html.twig` | built (coffee) |
+| `app_order_checkout` | `/order/checkout` | `OrderController::checkout()` | `@theme/checkout.html.twig` | built (coffee) |
+| `app_page_about` | `/about` | `PageController::about()` | `@theme/about.html.twig` | missing template |
+| `app_page_contacts` | `/contacts` | `PageController::contacts()` | `@theme/contacts.html.twig` | missing template |
 
 "Missing template" routes already work end-to-end (route + controller call `render()` correctly) but 500 today because no theme ships that file yet.
 
@@ -142,9 +156,11 @@ Login/register/logout/email-verification pages are **not** theme-scoped — they
 
 ### Adding a new theme
 
-1. Create `templates/themes/{code}/` with `base.html.twig` plus a page template for every route you want that store to serve.
+1. Create `templates/themes/{code}/` with `base.html.twig` plus a page template for every route you want that store to serve, all referencing each other via `@theme/...`.
 2. Insert a `Template` row with that `code`, a `title`, and `default_config`.
 3. Point the target `Store.template` at it — or leave it `null` to fall back to `TemplateRepository::getDefault()` (the `code = 'default'` row).
+
+No controller or config changes are needed — `ThemeAwareLoader` picks up the new code automatically.
 
 ## Monetary Values
 
