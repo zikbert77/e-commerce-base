@@ -1,0 +1,25 @@
+<header class="site-header">
+    <div class="container">
+        <div class="site-header__left">
+            <a href="{{ path('app_home') }}" class="brand">
+                <span class="brand__name">ЗЕРНО</span>
+                <span class="brand__tagline">coffee</span>
+            </a>
+            <nav class="main-nav">
+                <a href="{{ path('app_catalog') }}" class="main-nav__catalog">Каталог ▾</a>
+                <a href="{{ path('app_page_about') }}">Про нас</a>
+                <a href="#">Оплата і доставка</a>
+                <a href="#">Обмін та повернення</a>
+                <a href="#">Блог</a>
+                <a href="{{ path('app_page_contacts') }}">Контакти</a>
+            </nav>
+        </div>
+        <div class="site-header__right">
+            <a href="{{ path('app_search') }}" class="search-icon" aria-label="Пошук">⌕</a>
+            <button type="button" class="cart-btn" data-cart-open>
+                Мій кошик
+                <span class="cart-btn__count">2</span>
+            </button>
+        </div>
+    </div>
+</header>

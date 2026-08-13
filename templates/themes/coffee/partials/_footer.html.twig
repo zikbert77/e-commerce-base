@@ -1,0 +1,47 @@
+{% set footer_columns = [
+    { title: 'Каталог', links: [
+        { label: 'Кава в зернах', href: path('app_catalog') },
+        { label: 'Мелена кава', href: path('app_catalog') },
+        { label: 'Кавомашини', href: path('app_catalog') },
+        { label: 'Аксесуари', href: path('app_catalog') },
+        { label: 'Подарункові набори', href: path('app_catalog') }
+    ] },
+    { title: 'Покупцям', links: [
+        { label: 'Оплата і доставка', href: '#' },
+        { label: 'Обмін та повернення', href: '#' },
+        { label: 'Гарантія', href: '#' },
+        { label: 'Оптовим клієнтам', href: '#' },
+        { label: 'Блог', href: '#' }
+    ] },
+    { title: 'Контакти', links: [
+        { label: '044 000-00-00', href: 'tel:0440000000' },
+        { label: '095 000-00-00', href: 'tel:0950000000' },
+        { label: 'hello@zerno.ua', href: 'mailto:hello@zerno.ua' },
+        { label: 'Instagram', href: '#' },
+        { label: 'Telegram', href: '#' }
+    ] }
+] %}
+<footer class="site-footer">
+    <div class="site-footer__cols">
+        <div>
+            <div class="site-footer__brand">ЗЕРНО</div>
+            <p class="site-footer__about">Обсмажувальня та магазин кави. Київ, вул. Кирилівська 41. Пн–Нд 09:00–20:00.</p>
+        </div>
+        {% for col in footer_columns %}
+            <div class="footer-col">
+                <h4>{{ col.title }}</h4>
+                <div class="footer-col__links">
+                    {% for link in col.links %}
+                        <a href="{{ link.href }}">{{ link.label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="site-footer__bottom">
+        <div class="container">
+            <span>© 2026 ЗЕРНО. Усі права захищені.</span>
+            <span>Публічна оферта · Політика конфіденційності</span>
+        </div>
+    </div>
+</footer>

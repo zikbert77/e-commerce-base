@@ -1,0 +1,135 @@
+{% extends 'themes/coffee/base.html.twig' %}
+
+{% block coffee_title %}ЗЕРНО — спешелті кава, обсмаження під замовлення{% endblock %}
+
+{% block content %}
+    {% set stats = [
+        { num: '72 год', label: 'від обсмаження до відправки' },
+        { num: '14', label: 'країн походження' },
+        { num: '4 200+', label: 'замовлень на місяць' },
+        { num: '84–92', label: 'бали SCA у каталозі' }
+    ] %}
+    {% set categories = [
+        { ph: 'Зерно / пачки кави', kicker: '42 товари', title: 'Кава в зернах', body: 'Спешелті мікролоти та бленди власного обсмаження — під еспресо, фільтр і турку.' },
+        { ph: 'Кавомашина', kicker: '18 товарів', title: 'Кавомашини', body: 'Ріжкові, автоматичні та гейзерні. Налаштування й запуск — у подарунок.' },
+        { ph: 'Аксесуари: чашки, фільтри', kicker: '63 товари', title: 'Аксесуари', body: 'Фільтри, темпери, ваги, пітчери, чашки й усе для щоденного заварювання.' }
+    ] %}
+    {% set sale_items = [
+        { slug: 'brazil-santos-1kg', title: 'Бразилія Сантос, 1 кг', kicker: 'Бразилія · темне', price: '1 190 грн', old: '1 490 грн', badges: [{ label: 'Розпродаж', class: 'tag-sale' }, { label: 'Хіт', class: 'tag-hit' }, { label: '−20%', class: 'tag-off' }] },
+        { slug: 'mirelli-6-cup-moka-pot', title: 'Кавоварка Mirelli 6 чашок', kicker: 'Гейзерна', price: '2 300 грн', old: '2 500 грн', badges: [{ label: 'Розпродаж', class: 'tag-sale' }, { label: 'Новинка', class: 'tag-new' }, { label: '−8%', class: 'tag-off' }] },
+        { slug: 'bellure-scale-timer', title: 'Ваги Bellure з таймером', kicker: 'Аксесуар', price: '1 100 грн', old: '1 200 грн', badges: [{ label: 'Розпродаж', class: 'tag-sale' }, { label: 'Хіт', class: 'tag-hit' }, { label: '−8%', class: 'tag-off' }] },
+        { slug: 'makina-uno', title: 'Кавомашина MAKINA Uno', kicker: 'Ріжкова', price: '12 400 грн', old: '13 900 грн', badges: [{ label: 'Розпродаж', class: 'tag-sale' }, { label: '−11%', class: 'tag-off' }] }
+    ] %}
+    {% set benefits = [
+        { num: '01', title: 'Свіже обсмаження', body: 'Обсмажуємо партію під замовлення — дата на кожній пачці.' },
+        { num: '02', title: 'Вибір бариста', body: 'Каталог формують діючі бариста, кожен лот проходить капінг.' },
+        { num: '03', title: 'Гарантія якості', body: 'Не сподобався смак — повернемо гроші за відкриту пачку.' },
+        { num: '04', title: 'Швидка доставка', body: "Відправка в день замовлення до 15:00, по Києву — кур'єр." }
+    ] %}
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero__media">
+                <div class="hero__media-inner">
+                    <div class="img-slot img-slot--dark">Пачка кави / зерно — фото товару</div>
+                </div>
+            </div>
+            <div class="hero__content">
+                <p class="hero__eyebrow">Обсмажуємо щочетверга — відправляємо щоп'ятниці</p>
+                <h1 class="hero__title">Свіже зерно<br>для вашої<br>чашки</h1>
+                <p class="hero__lead">Спешелті-кава прямої закупівлі, кавомашини та все для заварювання. Обсмаження під ваш метод — від турки до еспресо.</p>
+                <div class="hero__actions">
+                    <a href="{{ path('app_catalog') }}" class="btn btn-primary">Переглянути каталог  →</a>
+                    <a href="#" class="btn btn-outline-invert">Підбір за смаком</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            {% for s in stats %}
+                <div class="stats__item">
+                    <div class="stats__num">{{ s.num }}</div>
+                    <div class="stats__label">{{ s.label }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section container">
+        <div class="section__head">
+            <h2>Категорії</h2>
+            <a href="{{ path('app_catalog') }}" class="section__link">Весь каталог →</a>
+        </div>
+        <div class="category-grid">
+            {% for c in categories %}
+                <a href="{{ path('app_catalog') }}" class="category-card">
+                    <div class="category-card__media">
+                        <div class="img-slot">{{ c.ph }}</div>
+                    </div>
+                    <div>
+                        <div class="category-card__kicker">{{ c.kicker }}</div>
+                        <h3 class="category-card__title">{{ c.title }}</h3>
+                        <p class="category-card__body">{{ c.body }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section container">
+        <div class="section__head">
+            <h2>Розпродаж</h2>
+            <div style="display: flex; gap: 2px">
+                <span class="pagination__item">‹</span>
+                <span class="pagination__item is-active">›</span>
+            </div>
+        </div>
+        <div class="product-grid">
+            {% for p in sale_items %}
+                <a href="{{ path('app_product_view', {'slug': p.slug}) }}" class="product-card">
+                    <div class="product-card__media">
+                        <div class="product-card__badges">
+                            {% for b in p.badges %}
+                                <span class="tag {{ b.class }}">{{ b.label }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="product-card__img">
+                            <div class="img-slot">{{ p.title }}</div>
+                        </div>
+                    </div>
+                    <div class="product-card__kicker">{{ p.kicker }}</div>
+                    <h3 class="product-card__title">{{ p.title }}</h3>
+                    <div class="product-card__price-row">
+                        <span class="product-card__price">{{ p.price }}</span>
+                        <span class="product-card__price-old">{{ p.old }}</span>
+                    </div>
+                    <button type="button" class="btn btn-outline">До кошика</button>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="benefits">
+        <div class="container">
+            {% for b in benefits %}
+                <div class="benefit">
+                    <div class="benefit__num">{{ b.num }}</div>
+                    <h4>{{ b.title }}</h4>
+                    <p>{{ b.body }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="cta-banner">
+        <div class="container">
+            <h2>Кава, обсмажена цього тижня. Не раніше.</h2>
+            <div>
+                <p>Підписка на зерно: обираєте профіль смаку та періодичність — ми обсмажуємо й відправляємо в день відправки.</p>
+                <a href="#" class="btn btn-invert">Оформити підписку  →</a>
+            </div>
+        </div>
+    </section>
+{% endblock %}

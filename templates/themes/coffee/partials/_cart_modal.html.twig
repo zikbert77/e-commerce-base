@@ -1,0 +1,67 @@
+{% set cart_items = [
+    { title: 'Ефіопія Їргачеффе', variant: 'Зерно, 500 г', price: '940 грн', qty: 1, total: '940 грн' },
+    { title: 'Кавоварка Mirelli 6 чашок', variant: 'Гейзерна, сталь', price: '2 300 грн', qty: 1, total: '2 300 грн' }
+] %}
+{% set cart_recommend = [
+    { title: 'Фільтри V60, 100 шт', price: '180 грн' },
+    { title: 'Пітчер 350 мл', price: '640 грн' },
+    { title: 'Чашка керамічна 180 мл', price: '320 грн' }
+] %}
+<div id="cart-modal" class="cart-modal" aria-hidden="true">
+    <div class="cart-modal__panel" role="dialog" aria-modal="true" aria-label="Кошик">
+        <div class="cart-modal__head">
+            <h2>Кошик</h2>
+            <button type="button" class="cart-modal__close" data-cart-close aria-label="Закрити кошик">✕</button>
+        </div>
+        <div class="cart-modal__cols">
+            <span>Кількість</span>
+            <span>Вартість</span>
+        </div>
+        {% for item in cart_items %}
+            <div class="cart-modal-item">
+                <div class="cart-modal-item__media">
+                    <div class="img-slot">фото</div>
+                </div>
+                <div class="cart-modal-item__body">
+                    <div class="cart-modal-item__title">{{ item.title }}</div>
+                    <div class="cart-modal-item__meta">{{ item.variant }} · {{ item.price }}</div>
+                </div>
+                <div class="qty-stepper">
+                    <button type="button" aria-label="Зменшити кількість">−</button>
+                    <span>{{ item.qty }}</span>
+                    <button type="button" aria-label="Збільшити кількість">+</button>
+                </div>
+                <div class="cart-modal-item__total">{{ item.total }}</div>
+            </div>
+        {% endfor %}
+        <div class="cart-modal__links">
+            <a href="{{ path('app_login') }}">Увійти для відображення накопичувальної знижки</a>
+            <a href="#">Є купон зі знижкою?</a>
+        </div>
+        <div class="cart-modal__total">
+            <div class="cart-modal__total-row">
+                <span>Всього</span>
+                <span>3 240 грн</span>
+            </div>
+            <div class="cart-modal__actions">
+                <button type="button" class="btn btn-outline" data-cart-close>←  Повернутись до покупок</button>
+                <a href="{{ path('app_order_checkout') }}" class="btn btn-primary">Оформити замовлення  →</a>
+            </div>
+        </div>
+        <div class="cart-modal__recommend">
+            <h3>Рекомендуємо придбати</h3>
+            <div class="recommend-grid">
+                {% for item in cart_recommend %}
+                    <div class="recommend-card">
+                        <div class="recommend-card__media">
+                            <div class="img-slot">{{ item.title }}</div>
+                        </div>
+                        <div class="recommend-card__title">{{ item.title }}</div>
+                        <div class="recommend-card__price">{{ item.price }}</div>
+                        <button type="button" class="btn btn-primary btn-sm">До кошика</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
