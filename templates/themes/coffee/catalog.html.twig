@@ -1,0 +1,110 @@
+{% extends 'themes/coffee/base.html.twig' %}
+
+{% block page_title %}Кава в зернах — каталог | ЗЕРНО{% endblock %}
+
+{% block content %}
+    {% set filters = [
+        { title: 'Обсмаження', opts: [
+            { label: 'Світле', count: '18', checked: true },
+            { label: 'Середнє', count: '16', checked: false },
+            { label: 'Темне', count: '8', checked: false }
+        ] },
+        { title: 'Спосіб заварювання', opts: [
+            { label: 'Еспресо', count: '22', checked: true },
+            { label: 'Пуровер / V60', count: '15', checked: false },
+            { label: 'Френч-прес', count: '11', checked: false },
+            { label: 'Турка', count: '6', checked: false }
+        ] },
+        { title: 'Країна', opts: [
+            { label: 'Ефіопія', count: '9', checked: false },
+            { label: 'Колумбія', count: '7', checked: false },
+            { label: 'Кенія', count: '5', checked: false },
+            { label: 'Бразилія', count: '6', checked: false }
+        ] },
+        { title: 'Обробка', opts: [
+            { label: 'Промита', count: '20', checked: false },
+            { label: 'Натуральна', count: '14', checked: false },
+            { label: 'Анаеробна', count: '4', checked: false }
+        ] }
+    ] %}
+    {% set catalog_items = [
+        { slug: 'ethiopia-yirgacheffe', kicker: 'Ефіопія · промита', title: 'Ефіопія Їргачеффе', notes: 'Жасмин, бергамот, чорний чай', price: '520 грн', badges: [{ label: 'Хіт', class: 'tag-hit' }] },
+        { slug: 'colombia-huila', kicker: 'Колумбія · промита', title: 'Колумбія Уїла', notes: 'Карамель, слива, молочний шоколад', price: '460 грн', badges: [{ label: 'Новинка', class: 'tag-new' }] },
+        { slug: 'kenya-aa-nyeri', kicker: 'Кенія · промита', title: 'Кенія AA Ньєрі', notes: 'Чорна смородина, томат, цитрус', price: '610 грн', badges: [{ label: 'Хіт', class: 'tag-hit' }] },
+        { slug: 'brazil-cerrado', kicker: 'Бразилія · натуральна', title: 'Бразилія Серрадо', notes: 'Горіх, какао, щільне тіло', price: '390 грн', badges: [] },
+        { slug: 'guatemala-antigua', kicker: 'Гватемала · промита', title: 'Гватемала Антигуа', notes: 'Темний шоколад, спеції', price: '480 грн', badges: [{ label: 'Новинка', class: 'tag-new' }] },
+        { slug: 'blend-morning', kicker: 'Бленд · еспресо', title: 'Бленд «Ранковий»', notes: 'Карамель, фундук, збалансований', price: '340 грн', badges: [{ label: 'Хіт', class: 'tag-hit' }] },
+        { slug: 'costa-rica-tarrazu', kicker: 'Коста-Ріка · хані', title: 'Коста-Ріка Тарразу', notes: 'Абрикос, мед, біле вино', price: '560 грн', badges: [] },
+        { slug: 'rwanda-nyamasheke', kicker: 'Руанда · промита', title: 'Руанда Ньямасіба', notes: 'Чорний чай, лайм, троянда', price: '530 грн', badges: [{ label: 'Новинка', class: 'tag-new' }] },
+        { slug: 'blend-weekly', kicker: 'Бленд · фільтр', title: 'Бленд «Тижневий»', notes: 'Ягоди, цитрус, чиста кислотність', price: '420 грн', badges: [] }
+    ] %}
+
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ path('app_home') }}">Головна</a> / <a href="{{ path('app_catalog') }}">Каталог</a> / <span class="breadcrumb__current">Кава в зернах</span>
+        </nav>
+        <div class="catalog-head">
+            <h1>Кава в зернах</h1>
+            <div class="catalog-head__meta">
+                <span>Знайдено 42 товари</span>
+                <span class="catalog-sort">Сортувати: спочатку нові ▾</span>
+            </div>
+        </div>
+        <div class="catalog-layout">
+            <aside class="filters">
+                {% for f in filters %}
+                    <div class="filter-group">
+                        <h3>{{ f.title }}</h3>
+                        {% for o in f.opts %}
+                            <label class="filter-option">
+                                <span class="filter-option__swatch{{ o.checked ? ' is-checked' : '' }}"></span>
+                                <span class="filter-option__label">{{ o.label }}</span>
+                                <span class="filter-option__count">{{ o.count }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div>
+                    <h3>Ціна, грн</h3>
+                    <div class="price-range">
+                        <input class="input" value="200" readonly>
+                        <input class="input" value="900" readonly>
+                    </div>
+                    <div class="price-range__track">
+                        <div class="price-range__fill"></div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block">Застосувати фільтри</button>
+                </div>
+            </aside>
+            <div class="product-grid product-grid--3">
+                {% for p in catalog_items %}
+                    <a href="{{ path('app_product_view', {'slug': p.slug}) }}" class="product-card">
+                        <div class="product-card__media">
+                            <div class="product-card__badges">
+                                {% for b in p.badges %}
+                                    <span class="tag {{ b.class }}">{{ b.label }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="product-card__img">
+                                <div class="img-slot">{{ p.title }}</div>
+                            </div>
+                        </div>
+                        <div class="product-card__kicker">{{ p.kicker }}</div>
+                        <h3 class="product-card__title">{{ p.title }}</h3>
+                        <p class="product-card__notes">{{ p.notes }}</p>
+                        <div class="product-card__foot">
+                            <span class="product-card__price">{{ p.price }}</span>
+                            <span style="font-size: 14px; font-weight: 700; color: var(--color-accent-700)">До кошика +</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="pagination">
+            <span class="pagination__item is-active">1</span>
+            <a href="#" class="pagination__item">2</a>
+            <a href="#" class="pagination__item">3</a>
+            <a href="#" class="pagination__next">Далі ›</a>
+        </div>
+    </div>
+{% endblock %}

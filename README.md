@@ -8,6 +8,7 @@ Symfony 7.3 e-commerce application with PostgreSQL database. The project impleme
 - [Installation](#installation)
 - [Architecture](#architecture)
 - [Multi-Store Resolution](#multi-store-resolution)
+- [Theme System](#theme-system)
 - [Monetary Values](#monetary-values)
 - [Entity Structure](#entity-structure)
 - [Common Commands](#common-commands)
@@ -81,6 +82,69 @@ The application can serve multiple stores (tenants) from a single codebase, reso
 - On each request, `StoreResolverSubscriber` resolves the current `Store` from the request host (via `StoreResolver`, cached in the `store.cache` APCu pool) and stores it in `StoreContext`. Unmatched hosts result in a 404.
 - Once resolved, Doctrine's `store_filter` SQL filter is enabled, automatically scoping queries for any entity implementing `App\Entity\Interface\StoreScopedInterface` to `store_id = :storeId`.
 - To make an entity store-scoped: implement `StoreScopedInterface` and add a `store` relation.
+
+## Theme System
+
+Each store renders through a **theme**: a directory of Twig templates at `templates/themes/{code}/`, where `{code}` is the store's `Template.code` (resolved as `$store->getTemplate()->getCode()`). There's no theme-resolver service — every storefront controller inlines the path itself:
+
+```php
+$store = $this->storeContext->get();
+return $this->render('themes/' . $store->getTemplate()->getCode() . '/home.html.twig', [
+    'store' => $store,
+]);
+```
+
+### Directory structure
+
+```
+templates/themes/{code}/
+├── base.html.twig       # root layout — extends the app-level templates/base.html.twig
+├── home.html.twig       # one template per controller action (see table below)
+├── catalog.html.twig
+├── product.html.twig
+├── checkout.html.twig
+├── search.html.twig
+├── category.html.twig
+├── about.html.twig
+├── contacts.html.twig
+└── partials/            # shared chrome, included only — never rendered directly by a controller
+    ├── _topbar.html.twig
+    ├── _header.html.twig
+    ├── _footer.html.twig
+    └── _cart_modal.html.twig
+```
+
+`templates/themes/coffee/` is the reference implementation to copy when starting a new theme.
+
+### Required files & naming
+
+- **`base.html.twig`** is required for every theme — it extends the app shell (`templates/base.html.twig`), fills the `stylesheets` block with the theme's design tokens/CSS, and defines a `content` block that page templates override. It also nests a `page_title` block inside the app shell's `title` block, so pages can set the `<title>` without re-declaring `title` itself.
+- Every other top-level `*.html.twig` file must be **named exactly** what its controller interpolates (case-sensitive) — there's no fuzzy lookup, a mismatch is a 500 at render time.
+- Partial/include-only files live under `partials/` and are prefixed with `_` (the file is never a controller's render target, only ever `{% include %}`d).
+- Twig's loader has no relative (`./`) include syntax, so `base.html.twig` includes its own partials by hardcoding its theme's own path, e.g. `{% include 'themes/coffee/partials/_header.html.twig' %}`. Copying a theme to a new code means updating those literal paths.
+
+### Routing table
+
+| Route | Path | Controller | Theme file | Status |
+|---|---|---|---|---|
+| `app_home` | `/` | `MainController::index()` | `home.html.twig` | built (coffee) |
+| `app_catalog` | `/catalog` | `CatalogController::catalog()` | `catalog.html.twig` | built (coffee) |
+| `app_search` | `/catalog/search` | `CatalogController::search()` | `search.html.twig` | missing template |
+| `app_category` | `/catalog/category/{slug}` | `CatalogController::category()` | `category.html.twig` | missing template |
+| `app_product_view` | `/product/{slug}` | `ProductController::view()` | `product.html.twig` | built (coffee) |
+| `app_order_checkout` | `/order/checkout` | `OrderController::checkout()` | `checkout.html.twig` | built (coffee) |
+| `app_page_about` | `/about` | `PageController::about()` | `about.html.twig` | missing template |
+| `app_page_contacts` | `/contacts` | `PageController::contacts()` | `contacts.html.twig` | missing template |
+
+"Missing template" routes already work end-to-end (route + controller call `render()` correctly) but 500 today because no theme ships that file yet.
+
+Login/register/logout/email-verification pages are **not** theme-scoped — they render from `templates/security/` and `templates/registration/` regardless of the active store's template, since they're shared across every store. The `/api/cart` endpoints return JSON and have no template.
+
+### Adding a new theme
+
+1. Create `templates/themes/{code}/` with `base.html.twig` plus a page template for every route you want that store to serve.
+2. Insert a `Template` row with that `code`, a `title`, and `default_config`.
+3. Point the target `Store.template` at it — or leave it `null` to fall back to `TemplateRepository::getDefault()` (the `code = 'default'` row).
 
 ## Monetary Values
 

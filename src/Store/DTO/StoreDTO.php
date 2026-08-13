@@ -10,7 +10,7 @@ final readonly class StoreDTO
         private int              $id,
         private string           $title,
         private BaseStatus       $status,
-        private StoreSettingsDTO $settings,
+        private TemplateDTO      $template,
     )
     {
     }
@@ -30,8 +30,8 @@ final readonly class StoreDTO
         return $this->status;
     }
 
-    public function getSettings(): StoreSettingsDTO
+    public function getTemplate(): TemplateDTO
     {
-        return $this->settings;
+        return $this->template;
     }
 }

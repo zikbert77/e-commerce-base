@@ -1,0 +1,111 @@
+{% extends 'themes/coffee/base.html.twig' %}
+
+{% block page_title %}Оформлення замовлення | ЗЕРНО{% endblock %}
+
+{% block content %}
+    {% set contact_fields = [
+        { label: "Ім'я", ph: 'Олена' },
+        { label: 'Прізвище', ph: 'Ковальчук' },
+        { label: 'Телефон', ph: '+380 00 000 00 00' },
+        { label: 'E-mail', ph: 'you@example.com' }
+    ] %}
+    {% set shipping_options = [
+        { title: 'Нова пошта, відділення', eta: '1–2 дні', price: '75 грн', checked: true },
+        { title: "Кур'єр по Києву", eta: 'сьогодні', price: '120 грн', checked: false },
+        { title: 'Самовивіз, вул. Кирилівська 41', eta: 'за 2 год', price: 'безкоштовно', checked: false }
+    ] %}
+    {% set payment_options = [
+        { title: 'Картка онлайн', note: 'Visa / Mastercard', selected: true },
+        { title: 'Накладений платіж', note: 'оплата при отриманні', selected: false },
+        { title: 'Оплата частинами', note: 'до 4 платежів', selected: false }
+    ] %}
+    {% set cart_items = [
+        { title: 'Ефіопія Їргачеффе', variant: 'Зерно, 500 г', qty: 1, total: '940 грн' },
+        { title: 'Кавоварка Mirelli 6 чашок', variant: 'Гейзерна, сталь', qty: 1, total: '2 300 грн' }
+    ] %}
+
+    <div class="container">
+        <h1 class="checkout-head">Оформлення замовлення</h1>
+        <div class="checkout-layout">
+            <div class="checkout-main">
+                <div class="checkout-step">
+                    <div class="checkout-step__head">
+                        <span class="checkout-step__num">1</span>
+                        <h2>Контактні дані</h2>
+                    </div>
+                    <div class="field-grid">
+                        {% for f in contact_fields %}
+                            <label class="field">
+                                <span>{{ f.label }}</span>
+                                <input class="input" placeholder="{{ f.ph }}">
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="checkout-step">
+                    <div class="checkout-step__head">
+                        <span class="checkout-step__num">2</span>
+                        <h2>Доставка</h2>
+                    </div>
+                    <div class="shipping-list">
+                        {% for s in shipping_options %}
+                            <label class="shipping-option">
+                                <span class="shipping-option__radio{{ s.checked ? ' is-checked' : '' }}"><span></span></span>
+                                <span class="shipping-option__title">{{ s.title }}</span>
+                                <span class="shipping-option__eta">{{ s.eta }}</span>
+                                <span class="shipping-option__price">{{ s.price }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <label class="field" style="margin-top: 20px">
+                        <span>Відділення / адреса</span>
+                        <input class="input" placeholder="Київ, відділення №12, вул. Хрещатик 22">
+                    </label>
+                </div>
+
+                <div class="checkout-step">
+                    <div class="checkout-step__head">
+                        <span class="checkout-step__num">3</span>
+                        <h2>Оплата</h2>
+                    </div>
+                    <div class="payment-grid">
+                        {% for p in payment_options %}
+                            <label class="payment-option{{ p.selected ? ' is-selected' : '' }}">
+                                <div class="payment-option__title">{{ p.title }}</div>
+                                <div class="payment-option__note">{{ p.note }}</div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <aside class="order-summary">
+                <h2>Ваше замовлення</h2>
+                {% for i in cart_items %}
+                    <div class="order-summary__item">
+                        <div class="order-summary__item-media">
+                            <div class="img-slot img-slot--dark">фото</div>
+                        </div>
+                        <div style="flex: 1">
+                            <div class="order-summary__item-title">{{ i.title }}</div>
+                            <div class="order-summary__item-meta">{{ i.variant }} · {{ i.qty }} шт</div>
+                        </div>
+                        <div class="order-summary__item-total">{{ i.total }}</div>
+                    </div>
+                {% endfor %}
+                <div class="order-summary__totals">
+                    <div class="order-summary__totals-row"><span>Товари</span><span>3 240 грн</span></div>
+                    <div class="order-summary__totals-row"><span>Доставка</span><span>75 грн</span></div>
+                    <div class="order-summary__totals-row"><span>Знижка постійного клієнта</span><span style="color: var(--color-accent-500)">−162 грн</span></div>
+                </div>
+                <div class="order-summary__grand">
+                    <span class="order-summary__grand-label">Всього</span>
+                    <span class="order-summary__grand-total">3 153 грн</span>
+                </div>
+                <button type="button" class="btn btn-primary">Підтвердити замовлення  →</button>
+                <p class="order-summary__legal">Натискаючи кнопку, ви погоджуєтесь з умовами обробки персональних даних та публічною офертою.</p>
+            </aside>
+        </div>
+    </div>
+{% endblock %}

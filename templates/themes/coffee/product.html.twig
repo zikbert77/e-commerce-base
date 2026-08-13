@@ -1,0 +1,121 @@
+{% extends 'themes/coffee/base.html.twig' %}
+
+{% block page_title %}Ефіопія Їргачеффе | ЗЕРНО{% endblock %}
+
+{% block content %}
+    {% set grinds = [
+        { label: 'Зерно', active: true },
+        { label: 'Еспресо', active: false },
+        { label: 'Пуровер', active: false },
+        { label: 'Турка', active: false }
+    ] %}
+    {% set weights = [
+        { label: '250 г', active: false },
+        { label: '500 г', active: true },
+        { label: '1 кг', active: false }
+    ] %}
+    {% set specs = [
+        { k: 'Країна', v: 'Ефіопія, Ґедео' },
+        { k: 'Обробка', v: 'Промита' },
+        { k: 'Висота', v: '1 950 м' },
+        { k: 'Сорт', v: 'Heirloom' },
+        { k: 'Обсмаження', v: 'Світле, під фільтр' },
+        { k: 'Дата обсмаження', v: '24.07.2026' }
+    ] %}
+    {% set cross_sell = [
+        { slug: 'v60-filters-100', kicker: 'Аксесуар', title: 'Фільтри паперові V60, 100 шт', price: '180 грн' },
+        { slug: 'ceramic-cup-180ml', kicker: 'Аксесуар', title: 'Чашка керамічна 180 мл', price: '320 грн' },
+        { slug: 'bellure-scale-timer', kicker: 'Аксесуар', title: 'Ваги Bellure з таймером', price: '1 100 грн' },
+        { slug: 'blend-morning', kicker: 'Бленд', title: 'Бленд «Ранковий», 250 г', price: '340 грн' }
+    ] %}
+
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ path('app_home') }}">Головна</a> / <a href="{{ path('app_catalog') }}">Каталог</a> / <a href="{{ path('app_catalog') }}">Кава в зернах</a> / <span class="breadcrumb__current">Ефіопія Їргачеффе</span>
+        </nav>
+
+        <div class="product-layout">
+            <div class="product-gallery">
+                <div class="product-gallery__thumbs">
+                    <div class="product-thumb is-active"><div class="img-slot">1</div></div>
+                    <div class="product-thumb"><div class="img-slot">2</div></div>
+                    <div class="product-thumb"><div class="img-slot">3</div></div>
+                </div>
+                <div class="product-gallery__main">
+                    <div class="product-gallery__badges">
+                        <span class="tag tag-sale">Хіт</span>
+                        <span class="tag tag-new">Обсмажено 24.07</span>
+                    </div>
+                    <div class="img-slot">Головне фото товару</div>
+                </div>
+            </div>
+
+            <div class="product-info">
+                <div class="product-info__kicker">Спешелті · Ефіопія</div>
+                <h1>Ефіопія Їргачеффе</h1>
+                <p class="product-info__lead">Промита обробка, висота 1 950 м. У чашці — жасмин, бергамот і чорний чай, чиста кислотність, легке тіло.</p>
+
+                <div class="product-info__price-row">
+                    <span class="product-info__price">520 грн</span>
+                    <span class="product-info__unit">за 250 г</span>
+                    <span class="tag tag-outline">SCA 88</span>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-group__label">Помел</div>
+                    <div class="seg">
+                        {% for g in grinds %}
+                            <button type="button" class="seg-opt{{ g.active ? ' is-active' : '' }}">{{ g.label }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-group__label">Вага</div>
+                    <div class="seg">
+                        {% for w in weights %}
+                            <button type="button" class="seg-opt{{ w.active ? ' is-active' : '' }}">{{ w.label }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="product-info__buy">
+                    <div class="qty-stepper">
+                        <button type="button" aria-label="Зменшити кількість">−</button>
+                        <span>1</span>
+                        <button type="button" aria-label="Збільшити кількість">+</button>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-cart-open>До кошика  →</button>
+                    <button type="button" class="wishlist-btn" aria-label="Додати до бажань">♡</button>
+                </div>
+
+                <div class="specs-table">
+                    {% for s in specs %}
+                        <div class="specs-table__row">
+                            <span class="specs-table__key">{{ s.k }}</span>
+                            <span class="specs-table__val">{{ s.v }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="section__head">
+                <h2>З цим купують</h2>
+            </div>
+            <div class="product-grid">
+                {% for p in cross_sell %}
+                    <a href="{{ path('app_product_view', {'slug': p.slug}) }}" class="product-card">
+                        <div class="product-card__img">
+                            <div class="img-slot">{{ p.title }}</div>
+                        </div>
+                        <div class="product-card__kicker">{{ p.kicker }}</div>
+                        <h3 class="product-card__title">{{ p.title }}</h3>
+                        <div class="product-card__price" style="margin-top: 12px; font-size: 20px">{{ p.price }}</div>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+{% endblock %}

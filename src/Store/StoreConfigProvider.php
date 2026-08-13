@@ -4,6 +4,8 @@ namespace App\Store;
 
 use App\Entity\Store;
 use App\Enum\CacheLifetime;
+use App\Repository\StoreTemplateConfigRepository;
+use App\Repository\TemplateRepository;
 use App\Store\DTO\StoreDTO;
 use App\Store\Factory\StoreDTOFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +18,8 @@ final readonly class StoreConfigProvider
     public function __construct(
         private TagAwareCacheInterface $cache,
         private EntityManagerInterface $em,
+        private TemplateRepository $templateRepository,
+        private StoreTemplateConfigRepository $storeTemplateConfigRepository,
     ) {}
 
     public function getConfig(int $storeId): StoreDto
@@ -33,7 +37,10 @@ final readonly class StoreConfigProvider
                     );
                 }
 
-                return StoreDtoFactory::fromEntity($store);
+                $template = $store->getTemplate() ?? $this->templateRepository->getDefault();
+                $templateConfig = $this->storeTemplateConfigRepository->findOneByStoreAndTemplate($store, $template);
+
+                return StoreDtoFactory::fromEntity($store, $template, $templateConfig);
             }
         );
     }

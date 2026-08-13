@@ -32,6 +32,10 @@ class Store implements TimestampableInterface
     #[ORM\OneToMany(targetEntity: StoreDomain::class, mappedBy: 'store', orphanRemoval: true)]
     private Collection $storeDomains;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'template_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    private ?Template $template = null;
+
     public function __construct()
     {
         $this->storeDomains = new ArrayCollection();
@@ -92,6 +96,18 @@ class Store implements TimestampableInterface
                 $storeDomain->setStore(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTemplate(): ?Template
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(?Template $template): static
+    {
+        $this->template = $template;
 
         return $this;
     }
