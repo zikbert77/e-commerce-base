@@ -16,6 +16,10 @@ final class StoreGlobalsExtension  extends AbstractExtension implements GlobalsI
 
     public function getGlobals(): array
     {
+        if (!$this->storeContext->isInitialized()) {
+            return [];
+        }
+
         return [
             'store' => $this->storeContext->get(),
         ];
