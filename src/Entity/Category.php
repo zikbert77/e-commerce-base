@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
+use App\Entity\Interface\StoreScopedInterface;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,7 +12,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-class Category implements TimestampableInterface
+class Category implements TimestampableInterface, StoreScopedInterface
 {
     use TimestampableTrait;
 
@@ -19,6 +20,10 @@ class Category implements TimestampableInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'store_id', referencedColumnName: 'id', nullable: false)]
+    private ?Store $store = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'childCategories')]
     private ?self $parent = null;
@@ -57,6 +62,18 @@ class Category implements TimestampableInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getStore(): ?Store
+    {
+        return $this->store;
+    }
+
+    public function setStore(?Store $store): static
+    {
+        $this->store = $store;
+
+        return $this;
     }
 
     public function getParent(): ?self

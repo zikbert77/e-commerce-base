@@ -1,0 +1,88 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}{{ isCurrentStore ? 'Settings' : store.title }}{% endblock %}
+
+{% macro field(f) %}
+    <div class="field">
+        {{ form_label(f) }}
+        {{ form_widget(f) }}
+        {{ form_errors(f) }}
+    </div>
+{% endmacro %}
+
+{% import _self as self %}
+
+{% block admin_content %}
+    <div class="admin-page admin-page--narrow">
+        <h1 class="admin-page__title">{{ isCurrentStore ? 'Settings' : store.title }}</h1>
+        <p class="admin-page__subtitle">Applies to {{ store.title }}</p>
+
+        <div style="display:flex; flex-direction:column; gap:20px; margin-top:24px;">
+            {{ form_start(storeForm) }}
+            <div class="card">
+                <div class="card__header"><h2>Store profile</h2></div>
+                <div class="card__body form-grid form-grid--2">
+                    {{ self.field(storeForm.title) }}
+                    {{ self.field(storeForm.status) }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__header"><h2>Theme</h2></div>
+                <div class="card__body form-grid form-grid--2">
+                    {{ self.field(storeForm.template) }}
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                {{ form_widget(storeForm.save, { label: 'Save settings', attr: { class: 'btn btn--primary' } }) }}
+                <a href="{{ path('admin_stores') }}" class="btn btn--secondary">Discard</a>
+            </div>
+            {{ form_end(storeForm) }}
+
+            <div class="card">
+                <div class="card__header">
+                    <h2>Domains</h2>
+                </div>
+                <div class="card__body" style="display:flex; flex-direction:column; gap:8px;">
+                    {% for d in store.storeDomains %}
+                        <div class="domain-row">
+                            <span class="mono">{{ d.domain }}</span>
+                            <form method="post" action="{{ path('admin_store_domain_delete', { id: d.id }) }}" style="margin-left:auto;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-domain-' ~ d.id) }}">
+                                <button type="submit" class="btn--danger-text">Remove</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <span style="color:var(--stone-400);">No domains yet — this store cannot receive requests until one is added.</span>
+                    {% endfor %}
+
+                    {{ form_start(domainForm, { action: path('admin_store_domain_add', { id: store.id }) }) }}
+                    <div style="display:flex; gap:8px; align-items:flex-start; margin-top:8px;">
+                        <div style="flex:1;">{{ form_widget(domainForm.domain) }}{{ form_errors(domainForm.domain) }}</div>
+                        <button type="submit" class="btn btn--secondary">Add domain</button>
+                    </div>
+                    {{ form_end(domainForm) }}
+                </div>
+            </div>
+
+            {% if configForm %}
+                {{ form_start(configForm) }}
+                <div class="card">
+                    <div class="card__header"><h2>Template config</h2></div>
+                    <div class="card__body">
+                        {{ self.field(configForm.config) }}
+                    </div>
+                </div>
+                <div>
+                    {{ form_widget(configForm.save, { label: 'Save template config', attr: { class: 'btn btn--primary' } }) }}
+                </div>
+                {{ form_end(configForm) }}
+            {% elseif store.template %}
+                <p style="color:var(--stone-400); font-size:12.5px;">
+                    Template config can only be edited from this store's own admin domain.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

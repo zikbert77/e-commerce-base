@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
+use App\Entity\Interface\StoreScopedInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Enum\OrderStatus;
 use App\Repository\OrderRepository;
@@ -14,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
-class Order implements TimestampableInterface
+class Order implements TimestampableInterface, StoreScopedInterface
 {
     use TimestampableTrait;
 
@@ -22,6 +23,10 @@ class Order implements TimestampableInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'store_id', referencedColumnName: 'id', nullable: false)]
+    private ?Store $store = null;
 
     #[ORM\Column(length: 30, unique: true)]
     private ?string $uid = null;
@@ -104,6 +109,18 @@ class Order implements TimestampableInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getStore(): ?Store
+    {
+        return $this->store;
+    }
+
+    public function setStore(?Store $store): static
+    {
+        $this->store = $store;
+
+        return $this;
     }
 
     public function getUid(): ?string

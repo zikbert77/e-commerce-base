@@ -1,0 +1,18 @@
+{% set paths = {
+    dashboard: 'M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z',
+    catalog: 'M20 7 12 3 4 7v10l8 4 8-4V7Zm-8 4L4 7m8 4 8-4m-8 4v10',
+    orders: 'M6 6h15l-1.5 9h-12L6 6Zm0 0-.7-3H3m6 18a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z',
+    customers: 'M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM21 19v-1a4 4 0 0 0-3-3.9M15.5 4.6a3 3 0 0 1 0 5.8',
+    storefronts: 'M3 21V9l9-6 9 6v12M9 21v-6h6v6',
+    chevron: 'm9 6 6 6-6 6',
+    search: 'm20 20-4.5-4.5M17 11a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z',
+    back: 'm15 18-6-6 6-6',
+    logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9',
+    plus: 'M12 5v14M5 12h14',
+} %}
+{% set sizeClass = size|default('admin-nav__icon') %}
+{% if name == 'settings' %}
+    <svg class="{{ sizeClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-2.87 1.2V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 7.2 19.4l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 3 13.7H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 7.2l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 10 3.6V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 2.8 1.51l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 20.4 10H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{% else %}
+    <svg class="{{ sizeClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="{{ paths[name] }}" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{% endif %}

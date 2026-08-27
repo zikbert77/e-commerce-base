@@ -1,0 +1,20 @@
+{% macro status_badge(status) %}
+    {% if status == 1 %}
+        <span class="badge badge--active">Active</span>
+    {% else %}
+        <span class="badge badge--inactive">Inactive</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro order_status_badge(status) %}
+    {% set map = {
+        'NEW': ['New', 'badge--new'],
+        'CONFIRMED': ['Confirmed', 'badge--confirmed'],
+        'PAID': ['Paid', 'badge--paid'],
+        'SHIPPED': ['Shipped', 'badge--shipped'],
+        'COMPLETED': ['Completed', 'badge--completed'],
+        'CANCELLED': ['Cancelled', 'badge--cancelled'],
+    } %}
+    {% set entry = map[status.name] %}
+    <span class="badge {{ entry[1] }}">{{ entry[0] }}</span>
+{% endmacro %}

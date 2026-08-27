@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Andante\TimestampableBundle\Timestampable\TimestampableInterface;
 use Andante\TimestampableBundle\Timestampable\TimestampableTrait;
+use App\Entity\Interface\StoreScopedInterface;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,7 +12,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
-class Product implements TimestampableInterface
+class Product implements TimestampableInterface, StoreScopedInterface
 {
     use TimestampableTrait;
 
@@ -22,6 +23,10 @@ class Product implements TimestampableInterface
 
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $status = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'store_id', referencedColumnName: 'id', nullable: false)]
+    private ?Store $store = null;
 
     /**
      * @var Collection<int, ProductInfo>
@@ -57,6 +62,18 @@ class Product implements TimestampableInterface
     public function setStatus(int $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStore(): ?Store
+    {
+        return $this->store;
+    }
+
+    public function setStore(?Store $store): static
+    {
+        $this->store = $store;
 
         return $this;
     }

@@ -1,0 +1,61 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-page">
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">Dashboard</h1>
+                <p class="admin-page__subtitle">Last {{ periodDays }} days · {{ store.title }}</p>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            {% for kpi in kpis %}
+                <div class="kpi-card">
+                    <div class="kpi-card__label">{{ kpi.label }}</div>
+                    <div class="kpi-card__value tabular-nums">{{ kpi.value }}</div>
+                    <div class="kpi-card__delta {{ kpi.delta.class }}">{{ kpi.delta.label }} <span>vs prev. period</span></div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="table-card">
+            <div class="card__header">
+                <h2>Top products</h2>
+                <a href="{{ path('admin_products') }}" class="btn--link" style="margin-left:auto; font-size:12.5px;">View all products</a>
+            </div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th class="right">Units</th>
+                            <th class="right">Revenue</th>
+                            <th style="width:120px;">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in topProducts %}
+                            <tr>
+                                <td class="cell-title">{{ p.title }}</td>
+                                <td>{{ p.category }}</td>
+                                <td class="right tabular-nums">{{ p.units }}</td>
+                                <td class="right tabular-nums" style="font-weight:500;">{{ p.revenue }}</td>
+                                <td>
+                                    <span style="display:block; height:6px; border-radius:99px; background:var(--stone-100); overflow:hidden;">
+                                        <span style="display:block; height:100%; background:var(--teal-600); border-radius:99px; width:{{ p.share }};"></span>
+                                    </span>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="empty-state">No sales in this period yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

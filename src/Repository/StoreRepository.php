@@ -15,4 +15,19 @@ class StoreRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Store::class);
     }
+
+    /**
+     * @return Store[]
+     */
+    public function findAllWithDomains(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.storeDomains', 'domain')
+            ->addSelect('domain')
+            ->leftJoin('s.template', 'template')
+            ->addSelect('template')
+            ->orderBy('s.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

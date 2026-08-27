@@ -1,0 +1,13 @@
+{% set lastPage = max(1, (total / perPage)|round(0, 'ceil')) %}
+<span class="pagination">
+    {% if page > 1 %}
+        <a href="{{ path(route, params|merge({ page: page - 1 })) }}">Previous</a>
+    {% else %}
+        <span class="is-disabled">Previous</span>
+    {% endif %}
+    {% if page < lastPage %}
+        <a href="{{ path(route, params|merge({ page: page + 1 })) }}">Next</a>
+    {% else %}
+        <span class="is-disabled">Next</span>
+    {% endif %}
+</span>

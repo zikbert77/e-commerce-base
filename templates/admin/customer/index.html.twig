@@ -1,0 +1,63 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}Customers{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-page">
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">Customers</h1>
+                <p class="admin-page__subtitle">{{ total }} registered user{{ total == 1 ? '' : 's' }}</p>
+            </div>
+            <a href="{{ path('admin_customer_new') }}" class="btn btn--primary" style="margin-left:auto;">New customer</a>
+        </div>
+
+        <div class="filters-bar">
+            <form method="get" class="search-field">
+                {{ include('admin/_icon.html.twig', { name: 'search' }) }}
+                <input type="search" name="q" value="{{ query }}" placeholder="Search name, email or phone">
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th class="right">Orders</th>
+                            <th>Registered</th>
+                            <th class="right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers %}
+                            <tr>
+                                <td>
+                                    <span style="display:flex; align-items:center; gap:10px;">
+                                        <span class="admin-store__avatar">{{ (customer.firstName|slice(0,1) ~ customer.lastName|slice(0,1))|upper }}</span>
+                                        <span>
+                                            <span class="cell-title">{{ customer.firstName }} {{ customer.lastName }}</span>
+                                            <span class="cell-sub">{{ customer.email }}</span>
+                                        </span>
+                                    </span>
+                                </td>
+                                <td class="tabular-nums" style="white-space:nowrap;">{{ customer.phone ?: '—' }}</td>
+                                <td class="right tabular-nums">{{ orderCounts[customer.id]|default(0) }}</td>
+                                <td class="tabular-nums" style="white-space:nowrap; color:var(--stone-500);">{{ customer.createdAt|date('d M Y') }}</td>
+                                <td class="right"><a href="{{ path('admin_customer_edit', { id: customer.id }) }}" class="btn--link">Edit</a></td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="empty-state">No customers match this search.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-foot">
+                <span>{{ total }} customers</span>
+                {{ include('admin/_pagination.html.twig', { route: 'admin_customers', params: { q: query }, page: page, perPage: perPage, total: total }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

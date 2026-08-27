@@ -1,0 +1,60 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}{{ isNew ? 'New category' : info.title }}{% endblock %}
+
+{% macro field(f) %}
+    <div class="field">
+        {{ form_label(f) }}
+        {{ form_widget(f) }}
+        {{ form_errors(f) }}
+    </div>
+{% endmacro %}
+
+{% import _self as self %}
+
+{% block admin_content %}
+    <div class="admin-page admin-page--narrow">
+        <a href="{{ path('admin_categories', { locale: locale }) }}" class="back-link">
+            {{ include('admin/_icon.html.twig', { name: 'back' }) }}
+            Back to categories
+        </a>
+
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">{{ isNew ? 'New category' : info.title }}</h1>
+                <p class="admin-page__subtitle">Category · CategoryInfo holds title, slug and description per locale</p>
+            </div>
+            <div style="margin-left:auto;">
+                <a href="{{ path('admin_categories', { locale: locale }) }}" class="btn btn--secondary">Cancel</a>
+            </div>
+        </div>
+
+        {% if not isNew %}
+            <div class="locale-switch" style="margin-bottom:20px;">
+                {% for l in locales %}
+                    <a href="{{ path('admin_category_edit', { id: category.id, locale: l.value }) }}" class="{{ locale == l.value ? 'is-active' }}">{{ l.value }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {{ form_start(form) }}
+        <div class="card">
+            <div class="card__body form-grid form-grid--2">
+                {{ self.field(form.info.title) }}
+                {{ self.field(form.info.slug) }}
+                {{ self.field(form.category.parent) }}
+                {{ self.field(form.category.status) }}
+                <div class="form-grid--span2">{{ self.field(form.info.description) }}</div>
+                {{ self.field(form.info.seoTitle) }}
+                <div class="field">
+                    <span>Locale</span>
+                    <span class="tag" style="width:fit-content;">{{ locale }}</span>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:20px;">
+            {{ form_widget(form.save, { label: isNew ? 'Create category' : 'Save category', attr: { class: 'btn btn--primary' } }) }}
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

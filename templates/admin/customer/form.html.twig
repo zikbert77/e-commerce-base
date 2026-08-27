@@ -1,0 +1,51 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}{{ isNew ? 'New customer' : customer.firstName ~ ' ' ~ customer.lastName }}{% endblock %}
+
+{% macro field(f) %}
+    <div class="field">
+        {{ form_label(f) }}
+        {{ form_widget(f) }}
+        {{ form_errors(f) }}
+    </div>
+{% endmacro %}
+
+{% import _self as self %}
+
+{% block admin_content %}
+    <div class="admin-page admin-page--narrow">
+        <a href="{{ path('admin_customers') }}" class="back-link">
+            {{ include('admin/_icon.html.twig', { name: 'back' }) }}
+            Back to customers
+        </a>
+
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">{{ isNew ? 'New customer' : customer.firstName ~ ' ' ~ customer.lastName }}</h1>
+                <p class="admin-page__subtitle">User account</p>
+            </div>
+            <div style="margin-left:auto;">
+                <a href="{{ path('admin_customers') }}" class="btn btn--secondary">Cancel</a>
+            </div>
+        </div>
+
+        {{ form_start(form) }}
+        <div class="card">
+            <div class="card__body form-grid form-grid--2">
+                {{ self.field(form.firstName) }}
+                {{ self.field(form.lastName) }}
+                {{ self.field(form.email) }}
+                {{ self.field(form.phone) }}
+                {{ self.field(form.status) }}
+                <label class="checkbox-row" style="align-self:end; padding-bottom:8px;">
+                    {{ form_widget(form.isVerified) }}
+                    {{ form_label(form.isVerified) }}
+                </label>
+            </div>
+        </div>
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn btn--primary">{{ isNew ? 'Create customer' : 'Save customer' }}</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
