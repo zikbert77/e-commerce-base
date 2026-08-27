@@ -126,6 +126,41 @@
     text-overflow: ellipsis;
 }
 
+.admin-store__switcher summary { list-style: none; cursor: pointer; }
+.admin-store__switcher summary::-webkit-details-marker,
+.admin-store__switcher summary::marker { display: none; content: ""; }
+.admin-store__switcher .admin-store__box svg { flex-shrink: 0; color: var(--stone-400); transition: transform .15s ease; }
+.admin-store__switcher[open] .admin-store__box svg { transform: rotate(90deg); }
+
+.admin-store__menu {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-store__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+}
+
+a.admin-store__menu-item:hover { background: var(--stone-100); }
+.admin-store__menu-item.is-active { background: var(--teal-50); }
+.admin-store__menu-item.is-active .admin-store__title { color: var(--emerald-800); }
+span.admin-store__menu-item { color: var(--stone-400); }
+
+.admin-store__menu-empty {
+    display: block;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--stone-400);
+}
+
 .admin-nav {
     flex: 1;
     overflow-y: auto;

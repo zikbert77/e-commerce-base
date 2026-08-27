@@ -42,7 +42,7 @@ User
 
 The application supports multiple stores served from a single codebase, resolved per-request by the incoming HTTP host. Store resolution is split into two cached steps: host → store ID, then store ID → full store config DTO.
 
-- **`Store`**: Core tenant entity (`title`, `status` via `BaseStatus` enum, `storeDomains`)
+- **`Store`**: Core tenant entity (`title`, `status` via `BaseStatus` enum, `storeDomains`). Many-to-many with `User` via the `store_user` pivot table (`Store::$users` owning side, `User::$stores` inverse, `mappedBy: 'users'`) — one store can have many users and one user can belong to many stores; not used for store resolution or scoping, see `Store::addUser()`/`User::addStore()`.
 - **`StoreDomain`**: Maps a domain string to a `Store` (many-to-one). `StoreDomainRepository::findByHost()` (`src/Repository/StoreDomainRepository.php`) looks up the active store domain for a given host.
 - **`StoreResolver`** (`src/Store/StoreResolver.php`): `resolveStoreIdByHost()` normalizes the host (lowercase, strips port, strips `www.`) and resolves it to a store **ID** (not the entity), via `StoreDomainRepository::findByHost()`. The ID is cached in the `store.cache` pool (APCu, tagged `store_domains`, TTL from `CacheLifetime::STORE_RESOLVER` = 300s). Null results are cached too, to avoid repeated DB lookups for unknown hosts.
 - **`StoreConfigProvider`** (`src/Store/StoreConfigProvider.php`): `getConfig(int $storeId)` loads the full store configuration as a `StoreDTO`, cached in `store.cache` (tagged `store_{id}`, TTL from `CacheLifetime::ONE_HOUR` = 3600s). Throws `StoreNotFoundException` if the store entity no longer exists. Builds the DTO via `StoreDTOFactory::fromEntity()`.

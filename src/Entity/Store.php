@@ -36,9 +36,16 @@ class Store implements TimestampableInterface
     #[ORM\JoinColumn(name: 'template_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?Template $template = null;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'stores')]
+    private Collection $users;
+
     public function __construct()
     {
         $this->storeDomains = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,6 +115,33 @@ class Store implements TimestampableInterface
     public function setTemplate(?Template $template): static
     {
         $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addStore($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removeStore($this);
+        }
 
         return $this;
     }

@@ -10,9 +10,16 @@ and Twig — no admin bundle or SPA.
   `access_control`). Grant it by adding `"ROLE_ADMIN"` to a `User`'s `roles` column.
 - Like the storefront, `/admin` still goes through `StoreResolverSubscriber`
   (see [architecture.md](architecture.md)): the request's **host** resolves the
-  current store. There is no in-app store switcher — each store's admin is
-  reached through a domain mapped to that store in `StoreDomain`. A host with
-  no matching domain 404s before reaching any admin controller.
+  current store. There is no in-app (same-domain) store switch — each store's
+  admin is reached through a domain mapped to that store in `StoreDomain`. A
+  host with no matching domain 404s before reaching any admin controller.
+- The sidebar store box (`templates/admin/_layout.html.twig`) is a dropdown
+  (`<details>`/`<summary>`, no JS) listing the stores the logged-in user is
+  linked to via the `Store`↔`User` many-to-many (`User::$stores`, see
+  [architecture.md](architecture.md)). Each entry links to that store's first
+  `StoreDomain` (`https://{domain}/admin`) since switching stores still means
+  switching host; a store with no domain shows "—" and isn't a link target.
+  A user with no linked stores sees an empty-state message instead of entries.
 
 ## Structure
 
