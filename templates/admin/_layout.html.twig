@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ block('page_title') }} · Commerce Admin{% endblock %}
+
+{% block javascripts %}
+    {% block importmap %}{{ importmap('admin') }}{% endblock %}
+{% endblock %}
+
+{% block body %}
+    {% set route = app.current_route %}
+    {% set counts = admin_nav_counts() %}
+    <div class="admin">
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar__brand">
+                <span class="admin-sidebar__brand-mark">EC</span>
+                <span>Commerce Admin</span>
+            </div>
+
+            <div class="admin-store">
+                <a href="{{ path('admin_settings') }}" class="admin-store__box" style="text-decoration:none; color:inherit;">
+                    <span class="admin-store__avatar">{{ store.title|slice(0, 2)|upper }}</span>
+                    <span style="min-width:0; flex:1;">
+                        <span class="admin-store__title">{{ store.title }}</span>
+                        <span class="admin-store__domain">{{ store.status.name|capitalize }}</span>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="admin-nav">
+                <a href="{{ path('admin_dashboard') }}" class="admin-nav__link {{ route == 'admin_dashboard' ? 'is-active' }}">
+                    {{ include('admin/_icon.html.twig', { name: 'dashboard' }) }}
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="admin-nav__heading">Catalog</div>
+                <details class="admin-nav__details" open>
+                    <summary class="admin-nav__toggle">
+                        {{ include('admin/_icon.html.twig', { name: 'catalog' }) }}
+                        <span class="admin-nav__spacer">Products &amp; content</span>
+                        {{ include('admin/_icon.html.twig', { name: 'chevron' }) }}
+                    </summary>
+                    <div class="admin-nav__sub">
+                        <a href="{{ path('admin_products') }}" class="admin-nav__link is-sub {{ route starts with 'admin_product' ? 'is-active' }}">
+                            <span>Products</span><span class="admin-nav__count">{{ counts.products }}</span>
+                        </a>
+                        <a href="{{ path('admin_categories') }}" class="admin-nav__link is-sub {{ route starts with 'admin_categor' ? 'is-active' }}">
+                            <span>Categories</span><span class="admin-nav__count">{{ counts.categories }}</span>
+                        </a>
+                    </div>
+                </details>
+
+                <a href="{{ path('admin_orders') }}" class="admin-nav__link {{ route == 'admin_orders' ? 'is-active' }}">
+                    {{ include('admin/_icon.html.twig', { name: 'orders' }) }}
+                    <span class="admin-nav__spacer">Orders</span>
+                    {% if counts.newOrders > 0 %}<span class="admin-nav__badge">{{ counts.newOrders }}</span>{% endif %}
+                </a>
+
+                <a href="{{ path('admin_customers') }}" class="admin-nav__link {{ route starts with 'admin_customer' ? 'is-active' }}">
+                    {{ include('admin/_icon.html.twig', { name: 'customers' }) }}
+                    <span>Customers</span>
+                </a>
+
+                <div class="admin-nav__heading">Configuration</div>
+                <details class="admin-nav__details" open>
+                    <summary class="admin-nav__toggle">
+                        {{ include('admin/_icon.html.twig', { name: 'storefronts' }) }}
+                        <span class="admin-nav__spacer">Storefronts</span>
+                        {{ include('admin/_icon.html.twig', { name: 'chevron' }) }}
+                    </summary>
+                    <div class="admin-nav__sub">
+                        <a href="{{ path('admin_stores') }}" class="admin-nav__link is-sub {{ route starts with 'admin_store' ? 'is-active' }}">Stores &amp; domains</a>
+                        <a href="{{ path('admin_themes') }}" class="admin-nav__link is-sub {{ route == 'admin_themes' ? 'is-active' }}">Themes / templates</a>
+                    </div>
+                </details>
+
+                <a href="{{ path('admin_settings') }}" class="admin-nav__link {{ route == 'admin_settings' ? 'is-active' }}">
+                    {{ include('admin/_icon.html.twig', { name: 'settings' }) }}
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="admin-user">
+                <span class="admin-user__avatar">{{ app.user ? app.user.userIdentifier|slice(0, 2)|upper : '?' }}</span>
+                <span style="min-width:0; flex:1;">
+                    <span class="admin-user__name">{{ app.user ? app.user.userIdentifier : 'Guest' }}</span>
+                    <span class="admin-user__role">{{ app.user and 'ROLE_ADMIN' in app.user.roles ? 'ROLE_ADMIN' : 'ROLE_USER' }}</span>
+                </span>
+                <a href="{{ path('app_logout') }}" class="admin-user__logout" title="Log out">
+                    {{ include('admin/_icon.html.twig', { name: 'logout' }) }}
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-breadcrumb">
+                    <span>{{ store.title }}</span>
+                    <span>/</span>
+                    <strong>{{ block('page_title') }}</strong>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="flash flash--{{ label }}" style="margin: 20px 32px 0;">{{ message }}</div>
+                    {% endfor %}
+                {% endfor %}
+
+                {% block admin_content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+{% endblock %}

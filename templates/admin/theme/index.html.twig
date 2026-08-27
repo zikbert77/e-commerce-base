@@ -1,0 +1,31 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}Themes / templates{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-page">
+        <h1 class="admin-page__title">Themes / templates</h1>
+        <p class="admin-page__subtitle">Templates live in <span class="mono">templates/themes/{code}/</span></p>
+
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+            {% for template in templates %}
+                <div class="card" style="margin:0;">
+                    <div class="card__body" style="display:flex; flex-direction:column; gap:12px;">
+                        <div style="display:flex; align-items:flex-start; gap:12px;">
+                            <div>
+                                <div style="font-weight:600;">{{ template.title }}</div>
+                                <div class="mono" style="font-size:12px; color:var(--stone-400); margin-top:2px;">{{ template.code }}</div>
+                            </div>
+                            <span class="badge {{ template.isActive ? 'badge--active' : 'badge--inactive' }}" style="margin-left:auto;">{{ template.isActive ? 'Active' : 'Inactive' }}</span>
+                        </div>
+                        <div style="color:var(--stone-500); font-size:12.5px; line-height:1.5;">
+                            Used by {{ storeCountByTemplate[template.id]|default(0) }} store{{ storeCountByTemplate[template.id]|default(0) == 1 ? '' : 's' }}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="empty-state">No templates configured yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

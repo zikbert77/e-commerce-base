@@ -1,0 +1,49 @@
+{% extends 'admin/_layout.html.twig' %}
+{% import 'admin/_macros.html.twig' as m %}
+
+{% block page_title %}Stores & domains{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-page">
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">Stores &amp; domains</h1>
+                <p class="admin-page__subtitle">Each request resolves a store from its HTTP host</p>
+            </div>
+            <a href="{{ path('admin_store_new') }}" class="btn btn--primary" style="margin-left:auto;">New store</a>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Store</th>
+                            <th>Domains</th>
+                            <th>Template</th>
+                            <th>Status</th>
+                            <th class="right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in stores %}
+                            <tr>
+                                <td class="cell-title">{{ s.title }}{{ s.id == store.id ? ' (current)' }}</td>
+                                <td>
+                                    <span class="tag-row">
+                                        {% for d in s.storeDomains %}<span class="tag mono" style="text-transform:none;">{{ d.domain }}</span>{% endfor %}
+                                    </span>
+                                </td>
+                                <td>{{ s.template ? s.template.title ~ ' (' ~ s.template.code ~ ')' : '—' }}</td>
+                                <td>{{ m.status_badge(s.status.value) }}</td>
+                                <td class="right"><a href="{{ path('admin_store_edit', { id: s.id }) }}" class="btn--link">Edit</a></td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="empty-state">No stores yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

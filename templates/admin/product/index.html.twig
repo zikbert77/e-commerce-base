@@ -1,0 +1,88 @@
+{% extends 'admin/_layout.html.twig' %}
+{% import 'admin/_macros.html.twig' as m %}
+
+{% block page_title %}Products{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-page">
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">Products</h1>
+                <p class="admin-page__subtitle">{{ total }} product{{ total == 1 ? '' : 's' }} in {{ store.title }}</p>
+            </div>
+            <a href="{{ path('admin_product_new', { locale: locale }) }}" class="btn btn--primary" style="margin-left:auto;">New product</a>
+        </div>
+
+        <div class="filters-bar">
+            <form method="get" class="search-field">
+                {{ include('admin/_icon.html.twig', { name: 'search', size: 'admin-nav__icon' }) }}
+                <input type="search" name="q" value="{{ query }}" placeholder="Search title or slug">
+                <input type="hidden" name="status" value="{{ status }}">
+                <input type="hidden" name="locale" value="{{ locale }}">
+            </form>
+            <form method="get" onchange="this.submit()">
+                <input type="hidden" name="q" value="{{ query }}">
+                <input type="hidden" name="locale" value="{{ locale }}">
+                <select name="status" class="select">
+                    <option value="all" {{ status == 'all' ? 'selected' }}>All statuses</option>
+                    <option value="1" {{ status == '1' ? 'selected' }}>Active</option>
+                    <option value="0" {{ status == '0' ? 'selected' }}>Inactive</option>
+                </select>
+            </form>
+            <div class="locale-switch">
+                {% for l in locales %}
+                    <a href="{{ path('admin_products', { locale: l.value, q: query, status: status }) }}" class="{{ locale == l.value ? 'is-active' }}">{{ l.value }}</a>
+                {% endfor %}
+            </div>
+            <span class="admin-nav__count" style="margin-left:auto;">{{ total }} of {{ total }} products</span>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Categories</th>
+                            <th>Locales</th>
+                            <th>Status</th>
+                            <th>Updated</th>
+                            <th class="right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                            {% set info = product.getProductInfoByLocale(locale) %}
+                            <tr>
+                                <td>
+                                    <span class="cell-title">{{ info ? info.title : '— no ' ~ locale ~ ' content —' }}</span>
+                                    {% if info %}<span class="cell-sub mono">/{{ info.slug }}</span>{% endif %}
+                                </td>
+                                <td>
+                                    {% set categoryTitles = product.categories|map(c => c.categoryInfos.first ? c.categoryInfos.first.title : null)|filter(t => t is not null) %}
+                                    {{ categoryTitles|join(', ')|default('—') }}
+                                </td>
+                                <td>
+                                    <span class="tag-row">
+                                        {% for pi in product.productInfos %}
+                                            <span class="tag">{{ pi.locale }}</span>
+                                        {% endfor %}
+                                    </span>
+                                </td>
+                                <td>{{ m.status_badge(product.status) }}</td>
+                                <td class="tabular-nums" style="white-space:nowrap; color:var(--stone-500);">{{ product.updatedAt ? product.updatedAt|date('d M Y') : product.createdAt|date('d M Y') }}</td>
+                                <td class="right"><a href="{{ path('admin_product_edit', { id: product.id, locale: locale }) }}" class="btn--link">Edit</a></td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="6" class="empty-state">No products match these filters.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-foot">
+                <span>{{ total }} of {{ total }} products</span>
+                {{ include('admin/_pagination.html.twig', { route: 'admin_products', params: { q: query, status: status, locale: locale }, page: page, perPage: perPage, total: total }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

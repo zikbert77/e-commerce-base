@@ -14,14 +14,17 @@ The application uses a **separate Info entities pattern** for internationalizati
 ### Entity Relationships
 
 ```
-Category (hierarchical)
+Category (hierarchical, store-scoped)
 ├── parent → Category (nullable, self-referencing)
 ├── childCategories → Collection<Category>
 └── categoryInfos → Collection<CategoryInfo>
 
-Product
-├── category → Category (required)
+Product (store-scoped)
+├── categories → Collection<Category> (many-to-many)
 └── productInfos → Collection<ProductInfo>
+
+Order (store-scoped)
+└── orderItems → Collection<OrderItem>
 
 Store
 └── storeDomains → Collection<StoreDomain>
@@ -48,7 +51,7 @@ The application supports multiple stores served from a single codebase, resolved
 - **`StoreContext`** (`src/Store/StoreContext.php`): Request-scoped holder for the current `StoreDTO` (no longer the `Store` entity); reset automatically between requests via the `kernel.reset` tag.
 - **`StoreFilter`** (`src/Doctrine/StoreFilter.php`): A Doctrine `SQLFilter` (registered as `store_filter`, disabled by default) that automatically adds a `store_id = :storeId` constraint to any entity implementing `App\Entity\Interface\StoreScopedInterface`.
 
-**To scope an entity to a store**: implement `StoreScopedInterface` and add a `store` relation — the `store_filter` will then automatically restrict queries to the current store once enabled by `StoreResolverSubscriber`.
+**To scope an entity to a store**: implement `StoreScopedInterface` and add a `store` relation — the `store_filter` will then automatically restrict queries to the current store once enabled by `StoreResolverSubscriber`. `Product`, `Category`, `Order`, and `StoreTemplateConfig` do this; `Cart` has the `store_id` column (from the same migration that added it to the other four) but is not yet scoped — see [admin.md](admin.md#known-gaps).
 
 > Note: the event subscriber's directory is `src/Store/EventSubsriber/` (typo, missing a `c`) — matches the current codebase, not a doc error.
 

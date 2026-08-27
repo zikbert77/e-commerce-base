@@ -1,0 +1,38 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}New store{% endblock %}
+
+{% macro field(f) %}
+    <div class="field">
+        {{ form_label(f) }}
+        {{ form_widget(f) }}
+        {{ form_errors(f) }}
+    </div>
+{% endmacro %}
+
+{% import _self as self %}
+
+{% block admin_content %}
+    <div class="admin-page admin-page--narrow">
+        <a href="{{ path('admin_stores') }}" class="back-link">
+            {{ include('admin/_icon.html.twig', { name: 'back' }) }}
+            Back to stores
+        </a>
+
+        <h1 class="admin-page__title">New store</h1>
+        <p class="admin-page__subtitle">Add its domain(s) once the store is created</p>
+
+        {{ form_start(form) }}
+        <div class="card" style="margin-top:20px;">
+            <div class="card__body form-grid form-grid--2">
+                {{ self.field(form.title) }}
+                {{ self.field(form.status) }}
+                {{ self.field(form.template) }}
+            </div>
+        </div>
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn btn--primary">Create store</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

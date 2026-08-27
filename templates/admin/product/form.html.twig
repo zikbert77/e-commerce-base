@@ -1,0 +1,97 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block page_title %}{{ isNew ? 'New product' : info.title }}{% endblock %}
+
+{% macro field(f) %}
+    <div class="field">
+        {{ form_label(f) }}
+        {{ form_widget(f) }}
+        {{ form_errors(f) }}
+    </div>
+{% endmacro %}
+
+{% import _self as self %}
+
+{% block admin_content %}
+    <div class="admin-page admin-page--form">
+        <a href="{{ path('admin_products', { locale: locale }) }}" class="back-link">
+            {{ include('admin/_icon.html.twig', { name: 'back', size: 'admin-nav__icon' }) }}
+            Back to products
+        </a>
+
+        <div class="admin-page__head">
+            <div>
+                <h1 class="admin-page__title">{{ isNew ? 'New product' : info.title }}</h1>
+                <p class="admin-page__subtitle">Product · locale-specific fields are saved per ProductInfo</p>
+            </div>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+                <a href="{{ path('admin_products', { locale: locale }) }}" class="btn btn--secondary">Cancel</a>
+            </div>
+        </div>
+
+        {% if not isNew %}
+            <div class="locale-switch" style="margin-bottom:20px;">
+                {% for l in locales %}
+                    <a href="{{ path('admin_product_edit', { id: product.id, locale: l.value }) }}" class="{{ locale == l.value ? 'is-active' }}">{{ l.value }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {{ form_start(form) }}
+        <div class="form-columns">
+            <div>
+                <div class="card">
+                    <div class="card__header">
+                        <h2>Content</h2>
+                        <span class="tag">{{ locale }}</span>
+                    </div>
+                    <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
+                        {{ self.field(form.info.title) }}
+                        {{ self.field(form.info.slug) }}
+                        {{ self.field(form.info.shortDescription) }}
+                        {{ self.field(form.info.description) }}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__header"><h2>SEO</h2></div>
+                    <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
+                        {{ self.field(form.info.seoTitle) }}
+                        {{ self.field(form.info.seoDescription) }}
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card__header"><h2>Publishing</h2></div>
+                    <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
+                        {{ self.field(form.product.status) }}
+                        <div class="field">
+                            <span>Store scope is set from the current store: <strong>{{ store.title }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__header"><h2>Categories</h2></div>
+                    <div class="card__body checkbox-list">
+                        {% for choice in form.product.categories %}
+                            <label class="checkbox-row">
+                                {{ form_widget(choice) }}
+                                {{ form_label(choice) }}
+                            </label>
+                        {% else %}
+                            <span style="color:var(--stone-400);">No categories yet.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:8px; margin-top:20px;">
+                    {{ form_widget(form.save, { label: isNew ? 'Create product' : 'Save product', attr: { class: 'btn btn--primary' } }) }}
+                </div>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

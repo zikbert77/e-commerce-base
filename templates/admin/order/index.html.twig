@@ -1,0 +1,63 @@
+{% extends 'admin/_layout.html.twig' %}
+{% import 'admin/_macros.html.twig' as m %}
+
+{% block page_title %}Orders{% endblock %}
+
+{% block admin_content %}
+    <div class="admin-page">
+        <h1 class="admin-page__title">Orders</h1>
+        <p class="admin-page__subtitle">{{ total }} order{{ total == 1 ? '' : 's' }} · {{ newCount }} awaiting confirmation</p>
+
+        <div class="filters-bar" style="margin-top:24px;">
+            <form method="get" class="search-field">
+                {{ include('admin/_icon.html.twig', { name: 'search' }) }}
+                <input type="search" name="q" value="{{ query }}" placeholder="Order UID, email or name">
+                <input type="hidden" name="tab" value="{{ tab }}">
+            </form>
+            <span class="pill-tabs">
+                <a href="{{ path('admin_orders', { tab: 'all', q: query }) }}" class="pill {{ tab == 'all' ? 'is-active' }}">All</a>
+                {% for s in statuses %}
+                    <a href="{{ path('admin_orders', { tab: s.value, q: query }) }}" class="pill {{ tab == s.value ~ '' ? 'is-active' }}">{{ s.name|capitalize }}</a>
+                {% endfor %}
+            </span>
+        </div>
+
+        <div class="table-card">
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th class="right">Items</th>
+                            <th class="right">Total</th>
+                            <th>Status</th>
+                            <th>Placed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td class="mono">{{ order.uid }}</td>
+                                <td>
+                                    <span class="cell-title">{{ order.customerFirstName }} {{ order.customerLastName }}</span>
+                                    <span class="cell-sub">{{ order.customerEmail }}</span>
+                                </td>
+                                <td class="right tabular-nums">{{ order.orderItems.count }}</td>
+                                <td class="right tabular-nums" style="font-weight:500;">${{ (order.totalAmount / 100)|number_format(2) }}</td>
+                                <td>{{ m.order_status_badge(order.status) }}</td>
+                                <td class="tabular-nums" style="white-space:nowrap; color:var(--stone-500);">{{ order.createdAt|date('d M Y') }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="6" class="empty-state">No orders match these filters.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-foot">
+                <span>{{ total }} orders</span>
+                {{ include('admin/_pagination.html.twig', { route: 'admin_orders', params: { tab: tab, q: query }, page: page, perPage: perPage, total: total }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

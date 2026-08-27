@@ -7,6 +7,11 @@ Use this file to determine which documentation is relevant to a task.
 General system architecture:
 - [architecture.md](architecture.md)
 
+## Admin
+
+Back-office module (catalog, orders, customers, store/theme settings):
+- [admin.md](admin.md)
+
 
 ## Store
 
