@@ -42,6 +42,7 @@
                     <thead>
                         <tr>
                             <th>Category</th>
+                            <th>Store</th>
                             <th>Parent</th>
                             <th class="right">Products</th>
                             <th>Locales</th>
@@ -63,6 +64,7 @@
                                         </span>
                                     </span>
                                 </td>
+                                <td>{{ category.store.title }}</td>
                                 <td>{{ category.parent ? (category.parent.categoryInfos.first ? category.parent.categoryInfos.first.title : '#' ~ category.parent.id) : '—' }}</td>
                                 <td class="right tabular-nums">{{ category.products.count }}</td>
                                 <td>
@@ -74,7 +76,7 @@
                                 <td class="right"><a href="{{ path('admin_category_edit', { id: category.id, locale: locale }) }}" class="btn--link">Edit</a></td>
                             </tr>
                         {% else %}
-                            <tr><td colspan="6" class="empty-state">No categories match these filters.</td></tr>
+                            <tr><td colspan="7" class="empty-state">No categories match these filters.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

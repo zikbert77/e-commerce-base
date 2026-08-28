@@ -24,6 +24,8 @@ class OrderRepository extends ServiceEntityRepository
     public function search(?OrderStatus $status, string $query, int $page, int $perPage): array
     {
         $qb = $this->createQueryBuilder('o')
+            ->leftJoin('o.store', 'store')
+            ->addSelect('store')
             ->orderBy('o.createdAt', 'DESC');
 
         if ($status !== null) {

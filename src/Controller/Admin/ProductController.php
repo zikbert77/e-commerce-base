@@ -13,12 +13,11 @@ use App\Repository\ProductRepository;
 use App\Repository\StoreRepository;
 use App\Store\StoreContext;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/products')]
+#[Route('/admin/products', host: '%admin_host%')]
 class ProductController extends BaseController
 {
     private const PER_PAGE = 15;
@@ -28,20 +27,19 @@ class ProductController extends BaseController
         private readonly ProductRepository $productRepository,
         private readonly StoreRepository $storeRepository,
         private readonly EntityManagerInterface $entityManager,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 
     #[Route('', name: 'admin_products', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $locale = $request->query->get('locale', ContentLocale::EN->value);
         $status = $request->query->get('status', 'all');
         $query = (string) $request->query->get('q', '');
         $page = max(1, $request->query->getInt('page', 1));
 
         $result = $this->productRepository->search(
-            $locale,
             $status === 'all' ? null : (int) $status,
             $query,
             $page,
@@ -55,71 +53,112 @@ class ProductController extends BaseController
             'perPage' => self::PER_PAGE,
             'query' => $query,
             'status' => $status,
-            'locale' => $locale,
-            'locales' => ContentLocale::cases(),
+            'defaultLocale' => ContentLocale::default(),
         ]);
     }
 
     #[Route('/new', name: 'admin_product_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        if (!$this->storeContext->isInitialized()) {
+            $this->addFlash('error', 'Select a specific store from the switcher before creating a product.');
+
+            return $this->redirectToRoute('admin_products');
+        }
+
         $product = new Product();
         $product->setStatus(BaseStatus::ACTIVE->value);
         $product->setStore($this->storeRepository->find($this->storeContext->getId()));
 
-        $locale = $request->query->get('locale', ContentLocale::EN->value);
-        $info = new ProductInfo();
-        $info->setLocale($locale);
+        $mainForm = $this->createForm(ProductType::class, $product);
+        $mainForm->handleRequest($request);
 
-        return $this->handleForm($request, $product, $info, isNew: true);
+        if ($mainForm->isSubmitted() && $mainForm->isValid()) {
+            $this->entityManager->persist($product);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Product created. Add a locale below to publish it.');
+
+            return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
+        }
+
+        return $this->render('admin/product/form.html.twig', [
+            'mainForm' => $mainForm,
+            'localeForm' => null,
+            'info' => null,
+            'product' => $product,
+            'isNew' => true,
+            'locale' => null,
+            'locales' => ContentLocale::cases(),
+            'localeStatus' => [],
+        ]);
     }
 
     #[Route('/{id}/edit', name: 'admin_product_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Product $product): Response
     {
-        $locale = $request->query->get('locale', ContentLocale::EN->value);
-        $info = $product->getProductInfoByLocale($locale);
-        if ($info === null) {
-            $info = new ProductInfo();
-            $info->setLocale($locale);
+        $locale = $request->query->get('locale');
+
+        $mainForm = $this->createForm(ProductType::class, $product);
+        $mainForm->handleRequest($request);
+
+        if ($mainForm->isSubmitted() && $mainForm->isValid()) {
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Product updated.');
+
+            return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
         }
 
-        return $this->handleForm($request, $product, $info, isNew: false);
-    }
+        $localeForm = null;
+        $info = null;
+        if ($locale !== null) {
+            $info = $product->getProductInfoByLocale($locale) ?? (new ProductInfo())->setLocale($locale);
 
-    private function handleForm(Request $request, Product $product, ProductInfo $info, bool $isNew): Response
-    {
-        $locale = $info->getLocale() ?? ContentLocale::EN->value;
+            $localeForm = $this->createForm(ProductInfoType::class, $info);
+            $localeForm->handleRequest($request);
 
-        $form = $this->createFormBuilder()
-            ->add('product', ProductType::class, ['data' => $product, 'mapped' => false])
-            ->add('info', ProductInfoType::class, ['data' => $info, 'mapped' => false])
-            ->add('save', SubmitType::class)
-            ->getForm();
+            if ($localeForm->isSubmitted() && $localeForm->isValid()) {
+                if ($info->getProduct() === null) {
+                    $product->addProductInfo($info);
+                }
 
-        $form->handleRequest($request);
+                $this->entityManager->persist($info);
+                $this->entityManager->flush();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            if ($info->getProduct() === null) {
-                $product->addProductInfo($info);
+                $this->addFlash('success', 'Translation saved.');
+
+                return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId(), 'locale' => $locale]);
             }
-
-            $this->entityManager->persist($product);
-            $this->entityManager->persist($info);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', $isNew ? 'Product created.' : 'Product updated.');
-
-            return $this->redirectToRoute('admin_products', ['locale' => $locale]);
         }
 
         return $this->render('admin/product/form.html.twig', [
-            'form' => $form,
-            'product' => $product,
+            'mainForm' => $mainForm,
+            'localeForm' => $localeForm,
             'info' => $info,
-            'isNew' => $isNew,
+            'product' => $product,
+            'isNew' => false,
             'locale' => $locale,
             'locales' => ContentLocale::cases(),
+            'localeStatus' => $this->localeStatus($product),
         ]);
+    }
+
+    /**
+     * @return array<string, string> locale code => 'missing'|'disabled'|'empty'|'translated'
+     */
+    private function localeStatus(Product $product): array
+    {
+        $status = [];
+        foreach (ContentLocale::cases() as $l) {
+            $info = $product->getProductInfoByLocale($l->value);
+            $status[$l->value] = match (true) {
+                $info === null => 'missing',
+                !$info->isEnabled() => 'disabled',
+                (bool) $info->getTitle() => 'translated',
+                default => 'empty',
+            };
+        }
+
+        return $status;
     }
 }

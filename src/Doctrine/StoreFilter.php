@@ -14,8 +14,18 @@ final class StoreFilter extends SQLFilter
             return '';
         }
 
-        $storeId = $this->getParameter('storeId');
+        if (!$this->hasParameter('storeIds')) {
+            return '';
+        }
 
-        return sprintf('%s.store_id = %s', $targetTableAlias, $storeId);
+        $list = $this->getParameterList('storeIds');
+
+        // No accessible stores (e.g. an admin linked to zero stores in
+        // aggregate mode) must yield zero rows, not the invalid `IN ()`.
+        if ($list === '') {
+            return '1 = 0';
+        }
+
+        return sprintf('%s.store_id IN (%s)', $targetTableAlias, $list);
     }
 }

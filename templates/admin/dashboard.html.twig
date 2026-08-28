@@ -7,7 +7,7 @@
         <div class="admin-page__head">
             <div>
                 <h1 class="admin-page__title">Dashboard</h1>
-                <p class="admin-page__subtitle">Last {{ periodDays }} days · {{ store.title }}</p>
+                <p class="admin-page__subtitle">Last {{ periodDays }} days · {{ store is defined ? store.title : 'All stores' }}</p>
             </div>
         </div>
 

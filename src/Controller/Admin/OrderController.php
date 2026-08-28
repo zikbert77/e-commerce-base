@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/orders')]
+#[Route('/admin/orders', host: '%admin_host%')]
 class OrderController extends BaseController
 {
     private const PER_PAGE = 20;
@@ -18,7 +18,8 @@ class OrderController extends BaseController
     public function __construct(
         StoreContext $storeContext,
         private readonly OrderRepository $orderRepository,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 

@@ -110,13 +110,11 @@ class Product implements TimestampableInterface, StoreScopedInterface
 
     public function getProductInfoByLocale(string $locale): ?ProductInfo
     {
-        if (empty($this->productInfos)) {
-            return null;
-        }
-
-        return $this->productInfos->filter(function (ProductInfo $productInfo) use ($locale) {
+        $match = $this->productInfos->filter(function (ProductInfo $productInfo) use ($locale) {
             return $productInfo->getLocale() === $locale;
         })->first();
+
+        return $match ?: null;
     }
 
     public function getCreator(): ?User

@@ -13,6 +13,7 @@ use App\Form\Admin\StoreType;
 use App\Repository\StoreDomainRepository;
 use App\Repository\StoreRepository;
 use App\Repository\StoreTemplateConfigRepository;
+use App\Store\EventSubsriber\AdminStoreScopeSubscriber;
 use App\Store\StoreContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -20,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/stores')]
+#[Route('/admin/stores', host: '%admin_host%')]
 class StoreController extends BaseController
 {
     public function __construct(
@@ -29,7 +30,8 @@ class StoreController extends BaseController
         private readonly StoreDomainRepository $storeDomainRepository,
         private readonly StoreTemplateConfigRepository $storeTemplateConfigRepository,
         private readonly EntityManagerInterface $entityManager,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 
@@ -79,8 +81,9 @@ class StoreController extends BaseController
         }
 
         // StoreTemplateConfig is store-scoped: the store_filter Doctrine
-        // filter restricts it to whichever store the current request's host
-        // resolves to, so it can only be read/edited for that same store.
+        // filter restricts it to whichever single store the admin switcher
+        // currently has selected, so it can only be read/edited for that
+        // store (never in aggregate "All stores" mode).
         $isCurrentStore = $this->storeContext->isInitialized() && $store->getId() === $this->storeContext->getId();
 
         $configForm = null;
@@ -144,5 +147,44 @@ class StoreController extends BaseController
         }
 
         return $this->redirectToRoute('admin_store_edit', ['id' => $storeId]);
+    }
+
+    #[Route('/switch', name: 'admin_store_switch', methods: ['POST'])]
+    public function switchStore(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('admin_store_switch', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid request.');
+
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
+        $storeId = $request->request->get('store_id');
+        $session = $request->getSession();
+
+        if ($storeId === null || $storeId === '') {
+            $session->remove(AdminStoreScopeSubscriber::SESSION_KEY);
+            $this->addFlash('success', 'Switched to all stores.');
+        } else {
+            $storeId = (int) $storeId;
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $linkedIds = array_map(static fn ($s) => $s->getId(), $user->getStores()->toArray());
+
+            if (!in_array($storeId, $linkedIds, true)) {
+                $this->addFlash('error', 'You do not have access to that store.');
+
+                return $this->redirectToRoute('admin_dashboard');
+            }
+
+            $session->set(AdminStoreScopeSubscriber::SESSION_KEY, $storeId);
+            $this->addFlash('success', 'Store switched.');
+        }
+
+        $referer = $request->headers->get('referer');
+        if ($referer && str_starts_with($referer, $request->getSchemeAndHttpHost())) {
+            return $this->redirect($referer);
+        }
+
+        return $this->redirectToRoute('admin_dashboard');
     }
 }

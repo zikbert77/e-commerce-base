@@ -20,38 +20,52 @@
                 {% if app.user %}
                     <details class="admin-store__switcher">
                         <summary class="admin-store__box">
-                            <span class="admin-store__avatar">{{ store.title|slice(0, 2)|upper }}</span>
+                            <span class="admin-store__avatar">{{ store is defined ? store.title|slice(0, 2)|upper : 'ALL' }}</span>
                             <span style="min-width:0; flex:1;">
-                                <span class="admin-store__title">{{ store.title }}</span>
-                                <span class="admin-store__domain">{{ store.status.name|capitalize }}</span>
+                                <span class="admin-store__title">{{ store is defined ? store.title : 'All stores' }}</span>
+                                <span class="admin-store__domain">{{ store is defined ? store.status.name|capitalize : 'Aggregate view' }}</span>
                             </span>
                             {{ include('admin/_icon.html.twig', { name: 'chevron' }) }}
                         </summary>
                         <div class="admin-store__menu">
+                            <form method="post" action="{{ path('admin_store_switch') }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('admin_store_switch') }}">
+                                <input type="hidden" name="store_id" value="">
+                                <button type="submit" class="admin-store__menu-item {{ store is not defined ? 'is-active' }}">
+                                    <span class="admin-store__avatar">ALL</span>
+                                    <span style="min-width:0; flex:1; text-align:left;">
+                                        <span class="admin-store__title">All stores</span>
+                                        <span class="admin-store__domain">{{ app.user.stores|length }} linked</span>
+                                    </span>
+                                </button>
+                            </form>
                             {% for userStore in app.user.stores %}
                                 {% set domain = userStore.storeDomains|first %}
-                                {% set isCurrent = userStore.id == store.id %}
-                                {% set tag = (isCurrent or domain) ? 'a' : 'span' %}
-                                <{{ tag }} {% if isCurrent %}href="{{ path('admin_settings') }}"{% elseif domain %}href="https://{{ domain.domain }}{{ path('admin_dashboard') }}"{% endif %} class="admin-store__menu-item {{ isCurrent ? 'is-active' }}">
-                                    <span class="admin-store__avatar">{{ userStore.title|slice(0, 2)|upper }}</span>
-                                    <span style="min-width:0; flex:1;">
-                                        <span class="admin-store__title">{{ userStore.title }}</span>
-                                        <span class="admin-store__domain">{{ domain ? domain.domain : '—' }}</span>
-                                    </span>
-                                </{{ tag }}>
+                                {% set isActive = store is defined and store.id == userStore.id %}
+                                <form method="post" action="{{ path('admin_store_switch') }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_store_switch') }}">
+                                    <input type="hidden" name="store_id" value="{{ userStore.id }}">
+                                    <button type="submit" class="admin-store__menu-item {{ isActive ? 'is-active' }}">
+                                        <span class="admin-store__avatar">{{ userStore.title|slice(0, 2)|upper }}</span>
+                                        <span style="min-width:0; flex:1; text-align:left;">
+                                            <span class="admin-store__title">{{ userStore.title }}</span>
+                                            <span class="admin-store__domain">{{ domain ? domain.domain : '—' }}</span>
+                                        </span>
+                                    </button>
+                                </form>
                             {% else %}
                                 <span class="admin-store__menu-empty">No stores linked to your account</span>
                             {% endfor %}
                         </div>
                     </details>
                 {% else %}
-                    <a href="{{ path('admin_settings') }}" class="admin-store__box" style="text-decoration:none; color:inherit;">
-                        <span class="admin-store__avatar">{{ store.title|slice(0, 2)|upper }}</span>
+                    <div class="admin-store__box">
+                        <span class="admin-store__avatar">{{ store is defined ? store.title|slice(0, 2)|upper : 'ALL' }}</span>
                         <span style="min-width:0; flex:1;">
-                            <span class="admin-store__title">{{ store.title }}</span>
-                            <span class="admin-store__domain">{{ store.status.name|capitalize }}</span>
+                            <span class="admin-store__title">{{ store is defined ? store.title : 'All stores' }}</span>
+                            <span class="admin-store__domain">{{ store is defined ? store.status.name|capitalize : '' }}</span>
                         </span>
-                    </a>
+                    </div>
                 {% endif %}
             </div>
 
@@ -123,7 +137,7 @@
         <main class="admin-main">
             <header class="admin-topbar">
                 <div class="admin-breadcrumb">
-                    <span>{{ store.title }}</span>
+                    <span>{{ store is defined ? store.title : 'All stores' }}</span>
                     <span>/</span>
                     <strong>{{ block('page_title') }}</strong>
                 </div>

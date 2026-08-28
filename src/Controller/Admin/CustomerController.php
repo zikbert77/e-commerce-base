@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/customers')]
+#[Route('/admin/customers', host: '%admin_host%')]
 class CustomerController extends BaseController
 {
     private const PER_PAGE = 20;
@@ -23,7 +23,8 @@ class CustomerController extends BaseController
         private readonly UserRepository $userRepository,
         private readonly OrderRepository $orderRepository,
         private readonly EntityManagerInterface $entityManager,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 

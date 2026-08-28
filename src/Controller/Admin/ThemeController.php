@@ -9,14 +9,15 @@ use App\Store\StoreContext;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/themes')]
+#[Route('/admin/themes', host: '%admin_host%')]
 class ThemeController extends BaseController
 {
     public function __construct(
         StoreContext $storeContext,
         private readonly TemplateRepository $templateRepository,
         private readonly StoreRepository $storeRepository,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 

@@ -8,18 +8,33 @@ and Twig — no admin bundle or SPA.
 
 - Every route under `/admin` requires `ROLE_ADMIN` (`config/packages/security.yaml`
   `access_control`). Grant it by adding `"ROLE_ADMIN"` to a `User`'s `roles` column.
-- Like the storefront, `/admin` still goes through `StoreResolverSubscriber`
-  (see [architecture.md](architecture.md)): the request's **host** resolves the
-  current store. There is no in-app (same-domain) store switch — each store's
-  admin is reached through a domain mapped to that store in `StoreDomain`. A
-  host with no matching domain 404s before reaching any admin controller.
-- The sidebar store box (`templates/admin/_layout.html.twig`) is a dropdown
-  (`<details>`/`<summary>`, no JS) listing the stores the logged-in user is
-  linked to via the `Store`↔`User` many-to-many (`User::$stores`, see
-  [architecture.md](architecture.md)). Each entry links to that store's first
-  `StoreDomain` (`https://{domain}/admin`) since switching stores still means
-  switching host; a store with no domain shows "—" and isn't a link target.
-  A user with no linked stores sees an empty-state message instead of entries.
+- `/admin` is reachable from exactly one fixed host, `%admin_host%`
+  (`ADMIN_HOST` env var, default `admin.e-commerce.loc`) — every admin
+  controller's class-level `#[Route(...)]` carries `host: '%admin_host%'`, so
+  the route simply doesn't match on any other host (a request to `/admin` on
+  a store's own domain 404s at the routing layer, before reaching any
+  controller). Unlike the storefront, admin does **not** resolve its store
+  from the request host: `StoreResolverSubscriber` explicitly skips the admin
+  host (see [architecture.md](architecture.md)), and a separate
+  `AdminStoreScopeSubscriber` scopes `/admin` requests instead, from a
+  session-backed store switcher.
+- The sidebar store box (`templates/admin/_layout.html.twig`) is a same-host,
+  no-JS switcher (`<details>`/`<summary>` plus one `<form method="post">` per
+  option, posting to `admin_store_switch`) listing the stores the logged-in
+  user is linked to via the `Store`↔`User` many-to-many (`User::$stores`, see
+  [architecture.md](architecture.md)), plus an explicit "All stores" option.
+  The choice is stored in session (`AdminStoreScopeSubscriber::SESSION_KEY`)
+  and survives across requests until changed. **Default (no prior choice) is
+  aggregate "All stores" mode** — every page shows combined data from every
+  store the admin is linked to, with a Store column on Products/Categories/
+  Orders. Picking one store narrows everything to it. If a session-selected
+  store is later unlinked from the user, the next request silently falls back
+  to aggregate rather than erroring. A user with zero linked stores still
+  reaches `/admin`, just sees empty data everywhere (aggregate over zero
+  stores).
+- Actions that need exactly one concrete store — creating a Product/Category,
+  the Settings page — check `StoreContext::isInitialized()` and, in aggregate
+  mode, flash an error and redirect instead of guessing a store.
 
 ## Structure
 
@@ -41,16 +56,19 @@ and Twig — no admin bundle or SPA.
 
 `Product`, `Category`, and `Order` implement `StoreScopedInterface` and carry a
 `store` relation (see [architecture.md](architecture.md) for `StoreFilter`).
-Once `StoreResolverSubscriber` enables the filter for the request, every
-catalog/order query — admin or storefront — is automatically restricted to the
-current store. Admin `new` actions set `->setStore(...)` explicitly from
-`StoreContext`; nothing else needs to filter by store manually.
+`StoreFilter` now restricts queries to `store_id IN (:storeIds)` rather than a
+single id: on the storefront it's always a 1-element list (the host-resolved
+store); in admin it's either a 1-element list (a specific store selected in
+the switcher) or the full list of stores the admin is linked to (aggregate
+mode). Admin `new` actions set `->setStore(...)` explicitly from
+`StoreContext`, which is only ever populated when the switcher has one
+specific store selected; nothing else needs to filter by store manually.
 
 One consequence: **`StoreTemplateConfig` (also store-scoped) can only be read
-or edited for the store the current request's host resolves to.** The store
-edit page (`admin_store_edit`) only shows the "Template config" card when
-editing the current store; editing another store from the "Stores & domains"
-list shows profile fields and domains only.
+or edited for the store the admin switcher currently has selected** — never in
+aggregate mode. The store edit page (`admin_store_edit`) only shows the
+"Template config" card when editing that selected store; editing another
+store from the "Stores & domains" list shows profile fields and domains only.
 
 ## Content locales
 

@@ -8,7 +8,7 @@
         <div class="admin-page__head">
             <div>
                 <h1 class="admin-page__title">Stores &amp; domains</h1>
-                <p class="admin-page__subtitle">Each request resolves a store from its HTTP host</p>
+                <p class="admin-page__subtitle">Storefront requests resolve a store from its HTTP host; switch stores in the admin from the sidebar</p>
             </div>
             <a href="{{ path('admin_store_new') }}" class="btn btn--primary" style="margin-left:auto;">New store</a>
         </div>
@@ -28,7 +28,7 @@
                     <tbody>
                         {% for s in stores %}
                             <tr>
-                                <td class="cell-title">{{ s.title }}{{ s.id == store.id ? ' (current)' }}</td>
+                                <td class="cell-title">{{ s.title }}{{ (store is defined and s.id == store.id) ? ' (current)' }}</td>
                                 <td>
                                     <span class="tag-row">
                                         {% for d in s.storeDomains %}<span class="tag mono" style="text-transform:none;">{{ d.domain }}</span>{% endfor %}

@@ -20,14 +20,15 @@ class ProductRepository extends ServiceEntityRepository
     /**
      * @return array{items: Product[], total: int}
      */
-    public function search(string $locale, ?int $status, string $query, int $page, int $perPage): array
+    public function search(?int $status, string $query, int $page, int $perPage): array
     {
         $qb = $this->createQueryBuilder('p')
-            ->innerJoin('p.productInfos', 'info', 'WITH', 'info.locale = :locale')
+            ->leftJoin('p.productInfos', 'info')
             ->addSelect('info')
             ->leftJoin('p.categories', 'category')
             ->addSelect('category')
-            ->setParameter('locale', $locale)
+            ->leftJoin('p.store', 'store')
+            ->addSelect('store')
             ->orderBy('p.id', 'DESC');
 
         if ($status !== null) {
