@@ -28,6 +28,7 @@
                     <thead>
                         <tr>
                             <th>Order</th>
+                            <th>Store</th>
                             <th>Customer</th>
                             <th class="right">Items</th>
                             <th class="right">Total</th>
@@ -39,6 +40,7 @@
                         {% for order in orders %}
                             <tr>
                                 <td class="mono">{{ order.uid }}</td>
+                                <td>{{ order.store.title }}</td>
                                 <td>
                                     <span class="cell-title">{{ order.customerFirstName }} {{ order.customerLastName }}</span>
                                     <span class="cell-sub">{{ order.customerEmail }}</span>
@@ -49,7 +51,7 @@
                                 <td class="tabular-nums" style="white-space:nowrap; color:var(--stone-500);">{{ order.createdAt|date('d M Y') }}</td>
                             </tr>
                         {% else %}
-                            <tr><td colspan="6" class="empty-state">No orders match these filters.</td></tr>
+                            <tr><td colspan="7" class="empty-state">No orders match these filters.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

@@ -43,6 +43,9 @@ class ProductInfo implements TimestampableInterface
     #[ORM\Column(length: 160, nullable: true)]
     private ?string $seoDescription = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $enabled = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -140,6 +143,18 @@ class ProductInfo implements TimestampableInterface
     public function setSeoDescription(?string $seoDescription): static
     {
         $this->seoDescription = $seoDescription;
+
+        return $this;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): static
+    {
+        $this->enabled = $enabled;
 
         return $this;
     }

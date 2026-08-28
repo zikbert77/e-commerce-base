@@ -1,6 +1,9 @@
 {% extends 'admin/_layout.html.twig' %}
 
-{% block page_title %}{{ isNew ? 'New product' : info.title }}{% endblock %}
+{% set heading = isNew ? 'New product' : (product.productInfos.first ? product.productInfos.first.title : 'Product #' ~ product.id) %}
+{% set saveLabel = locale is null ? (isNew ? 'Create product' : 'Save product') : 'Save translation' %}
+
+{% block page_title %}{{ heading }}{% endblock %}
 
 {% macro field(f) %}
     <div class="field">
@@ -14,84 +17,168 @@
 
 {% block admin_content %}
     <div class="admin-page admin-page--form">
-        <a href="{{ path('admin_products', { locale: locale }) }}" class="back-link">
+        <a href="{{ path('admin_products') }}" class="back-link">
             {{ include('admin/_icon.html.twig', { name: 'back', size: 'admin-nav__icon' }) }}
             Back to products
         </a>
 
         <div class="admin-page__head">
             <div>
-                <h1 class="admin-page__title">{{ isNew ? 'New product' : info.title }}</h1>
-                <p class="admin-page__subtitle">Product · locale-specific fields are saved per ProductInfo</p>
+                <h1 class="admin-page__title">{{ heading }}</h1>
+                <p class="admin-page__subtitle">
+                    {% if isNew %}
+                        Locale-independent fields only — add translations after creating
+                    {% else %}
+                        Shared settings on Main · title, slug, descriptions and SEO per locale
+                    {% endif %}
+                </p>
             </div>
             <div style="margin-left:auto; display:flex; gap:8px;">
-                <a href="{{ path('admin_products', { locale: locale }) }}" class="btn btn--secondary">Cancel</a>
+                <a href="{{ path('admin_products') }}" class="btn btn--secondary">Cancel</a>
+                <button type="submit" form="product-form" class="btn btn--primary">{{ saveLabel }}</button>
             </div>
         </div>
 
         {% if not isNew %}
-            <div class="locale-switch" style="margin-bottom:20px;">
+            <div class="tab-bar">
+                <a href="{{ path('admin_product_edit', { id: product.id }) }}" class="tab-bar__item {{ locale is null ? 'is-active' }}">Main</a>
                 {% for l in locales %}
-                    <a href="{{ path('admin_product_edit', { id: product.id, locale: l.value }) }}" class="{{ locale == l.value ? 'is-active' }}">{{ l.value }}</a>
+                    <a href="{{ path('admin_product_edit', { id: product.id, locale: l.value }) }}" class="tab-bar__item {{ locale == l.value ? 'is-active' }}">
+                        <span class="tab-bar__code">{{ l.value|upper }}</span>
+                        <span class="tab-bar__name">{{ l.displayName }}</span>
+                        <span class="locale-dot locale-dot--{{ localeStatus[l.value] }}"></span>
+                    </a>
                 {% endfor %}
             </div>
         {% endif %}
 
-        {{ form_start(form) }}
-        <div class="form-columns">
-            <div>
-                <div class="card">
-                    <div class="card__header">
-                        <h2>Content</h2>
-                        <span class="tag">{{ locale }}</span>
+        {% if locale is null %}
+            {{ form_start(mainForm, { attr: { id: 'product-form' } }) }}
+            <div class="form-columns">
+                <div>
+                    <div class="card">
+                        <div class="card__header">
+                            <h2>Images</h2>
+                        </div>
+                        <div class="card__body">
+                            <p style="font-size:12px; color:var(--stone-500); margin:0 0 12px;">First image is used as the product thumbnail.</p>
+                            <div class="image-slots">
+                                {% for i in 1..4 %}
+                                    <div class="image-slot">
+                                        {{ include('admin/_icon.html.twig', { name: 'plus', size: 'admin-nav__icon' }) }}
+                                        <span>Add image</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                    <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
-                        {{ self.field(form.info.title) }}
-                        {{ self.field(form.info.slug) }}
-                        {{ self.field(form.info.shortDescription) }}
-                        {{ self.field(form.info.description) }}
-                    </div>
-                </div>
 
-                <div class="card">
-                    <div class="card__header"><h2>SEO</h2></div>
-                    <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
-                        {{ self.field(form.info.seoTitle) }}
-                        {{ self.field(form.info.seoDescription) }}
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="card">
-                    <div class="card__header"><h2>Publishing</h2></div>
-                    <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
-                        {{ self.field(form.product.status) }}
-                        <div class="field">
-                            <span>Store scope is set from the current store: <strong>{{ store.title }}</strong></span>
+                    <div class="card">
+                        <div class="card__header"><h2>Categories</h2></div>
+                        <p style="font-size:12px; color:var(--stone-500); margin:12px 20px 0;">Locale-independent. Children inherit nothing from parents.</p>
+                        <div class="card__body checkbox-list">
+                            {% for choice in mainForm.categories %}
+                                <label class="checkbox-row">
+                                    {{ form_widget(choice) }}
+                                    {{ form_label(choice) }}
+                                </label>
+                            {% else %}
+                                <span style="color:var(--stone-400);">No categories yet.</span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card__header"><h2>Categories</h2></div>
-                    <div class="card__body checkbox-list">
-                        {% for choice in form.product.categories %}
-                            <label class="checkbox-row">
-                                {{ form_widget(choice) }}
-                                {{ form_label(choice) }}
+                <div>
+                    <div class="card">
+                        <div class="card__header"><h2>Publishing</h2></div>
+                        <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
+                            {{ self.field(mainForm.status) }}
+                            <div class="field">
+                                <span>Store scope: <strong>{{ product.store.title }}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if not isNew %}
+                        <div class="card">
+                            <div class="card__header"><h2>Translations</h2></div>
+                            <div class="card__body" style="display:flex; flex-direction:column; gap:6px;">
+                                {% for l in locales %}
+                                    <a href="{{ path('admin_product_edit', { id: product.id, locale: l.value }) }}" class="translation-row">
+                                        <span class="tag">{{ l.value }}</span>
+                                        <span style="flex:1;">
+                                            {% if localeStatus[l.value] == 'translated' %}Translated
+                                            {% elseif localeStatus[l.value] == 'empty' %}Started, needs content
+                                            {% elseif localeStatus[l.value] == 'disabled' %}Disabled
+                                            {% else %}Not added yet{% endif %}
+                                        </span>
+                                        <span class="locale-dot locale-dot--{{ localeStatus[l.value] }}"></span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {{ form_end(mainForm) }}
+        {% else %}
+            {{ form_start(localeForm, { attr: { id: 'product-form' } }) }}
+            <div class="form-columns">
+                <div>
+                    <div class="card">
+                        <div class="card__header">
+                            <h2>Content</h2>
+                            <span class="tag">{{ locale }}</span>
+                            <span style="font-size:12px; color:var(--stone-400);">ProductInfo</span>
+                            <label class="toggle-field" style="margin-left:auto;">
+                                <span style="font-size:12.5px; font-weight:500; color:var(--stone-600);">{{ info.enabled ? 'Enabled' : 'Disabled' }}</span>
+                                {{ form_widget(localeForm.enabled, { attr: { class: 'toggle-switch' } }) }}
                             </label>
-                        {% else %}
-                            <span style="color:var(--stone-400);">No categories yet.</span>
-                        {% endfor %}
+                        </div>
+                        <p style="font-size:12px; color:var(--stone-500); margin:-4px 20px 12px;">
+                            {{ info.enabled ? 'Visible on the storefront in this locale.' : 'Hidden on the storefront. Fields stay saved.' }}
+                        </p>
+                        <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
+                            {{ self.field(localeForm.title) }}
+                            {{ self.field(localeForm.slug) }}
+                            {{ self.field(localeForm.shortDescription) }}
+                            {{ self.field(localeForm.description) }}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__header"><h2>SEO</h2></div>
+                        <div class="card__body" style="display:flex; flex-direction:column; gap:16px;">
+                            {{ self.field(localeForm.seoTitle) }}
+                            {{ self.field(localeForm.seoDescription) }}
+                        </div>
                     </div>
                 </div>
 
-                <div style="display:flex; gap:8px; margin-top:20px;">
-                    {{ form_widget(form.save, { label: isNew ? 'Create product' : 'Save product', attr: { class: 'btn btn--primary' } }) }}
+                <div>
+                    <div class="card">
+                        <div class="card__header"><h2>{{ locale|upper }}</h2></div>
+                        <div class="card__body" style="display:flex; flex-direction:column; gap:12px;">
+                            <p style="font-size:12px; color:var(--stone-500); margin:0; line-height:1.5;">These fields are stored on the ProductInfo row for locale <span class="mono">{{ locale }}</span>. Categories, images and status are shared across locales — edit them on the Main tab.</p>
+                            <a href="{{ path('admin_product_edit', { id: product.id }) }}" class="btn btn--secondary btn--sm" style="align-self:flex-start;">Go to Main</a>
+                        </div>
+                    </div>
+
+                    {% set domain = product.store.storeDomains|first %}
+                    <div class="card">
+                        <div class="card__header"><h2>Storefront URL</h2></div>
+                        <div class="card__body">
+                            {% if domain and info.slug %}
+                                <div class="mono" style="font-size:11.5px; color:var(--stone-600); background:var(--stone-50); border:1px solid var(--stone-200); border-radius:8px; padding:8px 10px; word-break:break-all;">https://{{ domain.domain }}{{ path('app_product_view', { slug: info.slug }) }}</div>
+                            {% else %}
+                                <span style="color:var(--stone-400); font-size:12.5px;">Add a domain and a slug to preview the storefront URL.</span>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        {{ form_end(form) }}
+            {{ form_end(localeForm) }}
+        {% endif %}
     </div>
 {% endblock %}

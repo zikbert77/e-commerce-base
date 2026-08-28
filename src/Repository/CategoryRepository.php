@@ -32,6 +32,8 @@ class CategoryRepository extends ServiceEntityRepository
             ->addSelect('info')
             ->leftJoin('c.parent', 'parent')
             ->addSelect('parent')
+            ->leftJoin('c.store', 'store')
+            ->addSelect('store')
             ->setParameter('locale', $locale)
             ->orderBy('c.id', 'ASC')
             ->getQuery()

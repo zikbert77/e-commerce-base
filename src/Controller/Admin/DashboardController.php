@@ -9,7 +9,7 @@ use App\Store\StoreContext;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin')]
+#[Route('/admin', host: '%admin_host%')]
 class DashboardController extends BaseController
 {
     private const PERIOD_DAYS = 30;
@@ -18,7 +18,8 @@ class DashboardController extends BaseController
         StoreContext $storeContext,
         private readonly OrderRepository $orderRepository,
         private readonly OrderItemRepository $orderItemRepository,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 

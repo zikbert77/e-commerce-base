@@ -5,6 +5,7 @@ namespace App\Store\EventSubsriber;
 use App\Store\StoreConfigProvider;
 use App\Store\StoreContext;
 use App\Store\StoreResolver;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use App\Store\Exception\StoreNotFoundException;
@@ -18,6 +19,7 @@ final readonly class StoreResolverSubscriber implements EventSubscriberInterface
         private StoreContext           $context,
         private StoreConfigProvider    $configProvider,
         private EntityManagerInterface $em,
+        private string                 $adminHost,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -39,7 +41,15 @@ final readonly class StoreResolverSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $host = $event->getRequest()->getHost();
+        // The admin module lives on its own fixed host and resolves its
+        // store from a session-backed switcher instead (see
+        // AdminStoreScopeSubscriber) — that host has no StoreDomain row by
+        // design, so resolving it here would always throw.
+        if ($this->resolver->normalizeHost($request->getHost()) === $this->resolver->normalizeHost($this->adminHost)) {
+            return;
+        }
+
+        $host = $request->getHost();
         $storeId = $this->resolver->resolveStoreIdByHost($host);
         if (empty($storeId)) {
             throw new StoreNotFoundException('Store not found for host: ' . $host);
@@ -51,6 +61,6 @@ final readonly class StoreResolverSubscriber implements EventSubscriberInterface
 
         $this->em->getFilters()
             ->enable('store_filter')
-            ->setParameter('storeId', $storeDto->getId());
+            ->setParameterList('storeIds', [$storeDto->getId()], Types::INTEGER);
     }
 }

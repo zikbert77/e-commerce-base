@@ -32,7 +32,7 @@ final readonly class StoreResolver
         });
     }
 
-    private function normalizeHost(string $host): string
+    public function normalizeHost(string $host): string
     {
         $host = strtolower(trim($host));
         $host = preg_replace('/:\d+$/', '', $host);

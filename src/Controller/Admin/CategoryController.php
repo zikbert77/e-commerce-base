@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/categories')]
+#[Route('/admin/categories', host: '%admin_host%')]
 class CategoryController extends BaseController
 {
     public function __construct(
@@ -26,14 +26,15 @@ class CategoryController extends BaseController
         private readonly CategoryRepository $categoryRepository,
         private readonly StoreRepository $storeRepository,
         private readonly EntityManagerInterface $entityManager,
-    ) {
+    )
+    {
         parent::__construct($storeContext);
     }
 
     #[Route('', name: 'admin_categories', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $locale = $request->query->get('locale', ContentLocale::EN->value);
+        $locale = $request->query->get('locale', ContentLocale::default());
         $status = $request->query->get('status', 'all');
         $query = (string) $request->query->get('q', '');
 
@@ -55,11 +56,17 @@ class CategoryController extends BaseController
     #[Route('/new', name: 'admin_category_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        if (!$this->storeContext->isInitialized()) {
+            $this->addFlash('error', 'Select a specific store from the switcher before creating a category.');
+
+            return $this->redirectToRoute('admin_categories');
+        }
+
         $category = new Category();
         $category->setStatus(BaseStatus::ACTIVE->value);
         $category->setStore($this->storeRepository->find($this->storeContext->getId()));
 
-        $locale = $request->query->get('locale', ContentLocale::EN->value);
+        $locale = $request->query->get('locale', ContentLocale::default());
         $info = new CategoryInfo();
         $info->setLocale($locale);
 
@@ -69,7 +76,7 @@ class CategoryController extends BaseController
     #[Route('/{id}/edit', name: 'admin_category_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Category $category): Response
     {
-        $locale = $request->query->get('locale', ContentLocale::EN->value);
+        $locale = $request->query->get('locale', ContentLocale::default());
         $info = $category->getCategoryInfos()->filter(
             fn (CategoryInfo $i) => $i->getLocale() === $locale
         )->first() ?: null;
@@ -84,7 +91,7 @@ class CategoryController extends BaseController
 
     private function handleForm(Request $request, Category $category, CategoryInfo $info, bool $isNew): Response
     {
-        $locale = $info->getLocale() ?? ContentLocale::EN->value;
+        $locale = $info->getLocale() ?? ContentLocale::default();
 
         $form = $this->createFormBuilder()
             ->add('category', CategoryType::class, ['data' => $category, 'mapped' => false, 'editing_category' => $isNew ? null : $category])
