@@ -16,7 +16,7 @@ final class Version20260828100200 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE product_info ADD enabled BOOLEAN NOT NULL DEFAULT true');
+        $this->addSql('ALTER TABLE product_info ADD enabled BOOLEAN NOT NULL DEFAULT false');
     }
 
     public function down(Schema $schema): void

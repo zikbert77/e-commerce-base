@@ -43,8 +43,8 @@ class ProductInfo implements TimestampableInterface
     #[ORM\Column(length: 160, nullable: true)]
     private ?string $seoDescription = null;
 
-    #[ORM\Column(options: ['default' => true])]
-    private bool $enabled = true;
+    #[ORM\Column(options: ['default' => false])]
+    private bool $enabled = false;
 
     public function getId(): ?int
     {
